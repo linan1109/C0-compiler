@@ -1,21 +1,22 @@
 选做：
 	注释 1
-	
+
 	char+类型转换+字符字面量+字符串字面量 9
-	
+
 	多级作用域 3
-	
+
 	break+continue+(do/for) 3/5
-	
+
 	break+switch 5
-	
+
 	double+浮点数字面量 10
-	
+​	
 
 
 
 /************************************************************************以下是词法***************************************************************************/
 
+```
 
 
 <数字> ::=  '0'|<非零_数字>_
@@ -36,8 +37,6 @@ _<非零_数字> ::=  '1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'
 <标识符> ::=  <字母>{<字母>|<数字>}
 
 <保留字> ::=   'const' |'void'   |'int'    |'char'   |'double' |'struct' |'if'     |'else'    |'switch' |'case'   |'default' |'while'  |'for'    |'do' |'return' |'break'  |'continue'  |'print'  |'scan'
-​	
-
 
 
 <char_串> ::=  "'" (<c_char>|<escape_序列>) "'" 
@@ -115,10 +114,9 @@ _<数字_序列> ::= <数字>{<数字>}
 
 <参数_声明> ::=  [<const_修饰符>]<类型_说明符号><标识符>
 <parameter_declaration> ::=  [<const_qualifier>]<type_specifier><identifier>
-​	
-​	
-​	
-​	
+
+
+
 <函数体_语句> ::=  '{' {<变量_声明>} <语句_序列> '}'
 <compound_statement> ::=  '{' {<variable_declaration>} <statement_seq> '}'
 
@@ -188,7 +186,7 @@ _<数字_序列> ::= <数字>{<数字>}
 <printable> ::=  <表达式> | <string_串>
 
 <printable> ::=  <expression> | <string_literal>
-​	
+
 
 
 
@@ -219,7 +217,7 @@ _<数字_序列> ::= <数字>{<数字>}
 <primary_表达式> ::=    '('<表达式>')'  |<标识符> |<整数_串> |<char_串> |<浮点数_串> |<函数_call>
 
 <primary_expression> ::=    '('<expression>')'  |<identifier> |<integer_literal> |<char_literal> |<floating_literal> |<function_call>
-​	
+
 <函数_call> ::=  <标识符> '(' [<表达式_列表>] ')'
 
 <function_call> ::=  <identifier> '(' [<expression_list>] ')'
@@ -227,3 +225,5 @@ _<数字_序列> ::= <数字>{<数字>}
 <表达式_列表> ::=  <表达式>{','<表达式>}
 
 <expression_list> ::=  <expression>{','<expression>}
+
+```
