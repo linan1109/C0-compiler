@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Administrator/Desktop/BigHomework/miniplc0-compiler/3rd_party/catch2
+# Install script for directory: C:/Users/Administrator/Desktop/BigHomework/C0/3rd_party/catch2
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

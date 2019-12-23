@@ -399,7 +399,7 @@ namespace miniplc0 {
 
 
             ed = nextToken();
-            if(!ed.has_value() || ed.value().GetType() != TokenType::DOUBLE_QUOTES)
+            if(!ed.has_value() || ed.value().GetType() != TokenType::STRING_SIGN)
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedDoubleQuotes);
         }else{
             bool isint;
@@ -510,7 +510,40 @@ namespace miniplc0 {
 //<表达式_列表> ::=  <表达式>{','<表达式>}
 //<expression_list> ::=  <expression>{','<expression>}
     std::optional<CompilationError> Analyser::function_call(SymbleTable *symbleTable) {
+//todo:
+        auto ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::IDENTIFIER)
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
+        std::string name = ed.value().GetValueString();
+        int32_t kind = symbleTable->getKindByName(name);
+        if(kind != 2)
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidVariableDeclaration);
+        int32_t type = symbleTable->getTypeByName(name);
+        if(type != 1 && type != 2)
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidVariableDeclaration);
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() !=TokenType::LEFT_BRACKET)
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
+        bool isINT = type == 1;
+        auto err = expression(isINT,symbleTable);
+        if(err.has_value())
+            return err;
+        int32_t size = symbleTable->getSizeByName(name) -1 ;
+        ed = nextToken();
+        while(ed.has_value() && ed.value().GetType() == TokenType::COMMA_SIGN){
+            auto err = expression(isINT,symbleTable);
+            if(err.has_value())
+                return err;
+            ed = nextToken();
+            size--;
+        }
+        if(size != 0)
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLessParams);
 
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() !=TokenType::LEFT_BRACKET)
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
         return {};
     }
 
@@ -554,7 +587,6 @@ namespace miniplc0 {
             if (err.has_value())
                 return err;
 
-            //todo: 根据结果生成指令
             if (type == TokenType::PLUS_SIGN)
                 _instructions.emplace_back(Operation::iadd , 0, 0);
             else if (type == TokenType::MINUS_SIGN)
@@ -586,7 +618,6 @@ namespace miniplc0 {
             if (err.has_value())
                 return err;
 
-            //todo: 根据结果生成指令
             if (type == TokenType::MULTIPLICATION_SIGN)
                 _instructions.emplace_back(Operation::imul, 0, 0);
             else if (type == TokenType::DIVISION_SIGN)
@@ -602,7 +633,7 @@ namespace miniplc0 {
         if(next.has_value() && next.value().GetType() == LEFT_BRACKET){
             next = nextToken();
             if(next.has_value() && next.value().GetType() == RESERVED_WORD && next.value().GetValueString()=="char"){
-                //todo:
+
             }else if(next.has_value() && next.value().GetType() == RESERVED_WORD && next.value().GetValueString()=="int"){
                 *isINT = true;
             }else return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoType_specifier);
@@ -647,17 +678,27 @@ namespace miniplc0 {
                     if(pii.first == -1)
                         return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
                     int32_t type = symbleTable->getTypeByName(str);
-                    if(type == 1) *isINT = true;
-                    else if(type == 2 );
+                    if(type == 1) {
+                        *isINT = true;
+                        _instructions.emplace_back(Operation::loada, pii.second,pii.first);//加载地址
+                        _instructions.emplace_back(Operation::iload, 0,0);//得到数
+                    }
+                    else if(type == 2 ){//char
+                        _instructions.emplace_back(Operation::loada, pii.second,pii.first);//加载地址
+                        _instructions.emplace_back(Operation::cload, 0,0);//得到数
+                        if(*isINT)
+                            _instructions.emplace_back(Operation::c2i, 0,0);//得到数
+                    }
                     else
                         return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
-                    _instructions.emplace_back(Operation::loada, pii.second,pii.first);//加载地址
-                    _instructions.emplace_back(Operation::iload, 0,0);//得到数
                     break;
                 }else if(kind == 2){
                     //todo:
                     //<函数_call>
-
+                    unreadToken();
+                    auto err = function_call(symbleTable);
+                    if(err.has_value())
+                        return err;
                 }
 
 
@@ -704,6 +745,8 @@ namespace miniplc0 {
 
         // 取负
         if(prefix == -1) {
+            if(!*isINT)
+                _instructions.emplace_back(Operation::c2i, 0,0);
             _instructions.emplace_back(Operation::ineg , 0, 0);
             *isINT = true;
         }

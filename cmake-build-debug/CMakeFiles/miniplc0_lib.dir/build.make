@@ -42,10 +42,10 @@ RM = "D:\CLion 2019.2.5\bin\cmake\win\bin\cmake.exe" -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler
+CMAKE_SOURCE_DIR = C:\Users\Administrator\Desktop\BigHomework\C0
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\cmake-build-debug
+CMAKE_BINARY_DIR = C:\Users\Administrator\Desktop\BigHomework\C0\cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/miniplc0_lib.dir/depend.make
@@ -59,44 +59,44 @@ include CMakeFiles/miniplc0_lib.dir/flags.make
 CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.obj: CMakeFiles/miniplc0_lib.dir/flags.make
 CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.obj: CMakeFiles/miniplc0_lib.dir/includes_CXX.rsp
 CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.obj: ../tokenizer/tokenizer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.obj"
-	D:\MinGW\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\miniplc0_lib.dir\tokenizer\tokenizer.cpp.obj -c C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\tokenizer\tokenizer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Administrator\Desktop\BigHomework\C0\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.obj"
+	D:\MinGW\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\miniplc0_lib.dir\tokenizer\tokenizer.cpp.obj -c C:\Users\Administrator\Desktop\BigHomework\C0\tokenizer\tokenizer.cpp
 
 CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.i"
-	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\tokenizer\tokenizer.cpp > CMakeFiles\miniplc0_lib.dir\tokenizer\tokenizer.cpp.i
+	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Administrator\Desktop\BigHomework\C0\tokenizer\tokenizer.cpp > CMakeFiles\miniplc0_lib.dir\tokenizer\tokenizer.cpp.i
 
 CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/miniplc0_lib.dir/tokenizer/tokenizer.cpp.s"
-	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\tokenizer\tokenizer.cpp -o CMakeFiles\miniplc0_lib.dir\tokenizer\tokenizer.cpp.s
+	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Administrator\Desktop\BigHomework\C0\tokenizer\tokenizer.cpp -o CMakeFiles\miniplc0_lib.dir\tokenizer\tokenizer.cpp.s
 
 CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.obj: CMakeFiles/miniplc0_lib.dir/flags.make
 CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.obj: CMakeFiles/miniplc0_lib.dir/includes_CXX.rsp
 CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.obj: ../symbletable/symbletable.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.obj"
-	D:\MinGW\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\miniplc0_lib.dir\symbletable\symbletable.cpp.obj -c C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\symbletable\symbletable.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Administrator\Desktop\BigHomework\C0\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.obj"
+	D:\MinGW\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\miniplc0_lib.dir\symbletable\symbletable.cpp.obj -c C:\Users\Administrator\Desktop\BigHomework\C0\symbletable\symbletable.cpp
 
 CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.i"
-	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\symbletable\symbletable.cpp > CMakeFiles\miniplc0_lib.dir\symbletable\symbletable.cpp.i
+	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Administrator\Desktop\BigHomework\C0\symbletable\symbletable.cpp > CMakeFiles\miniplc0_lib.dir\symbletable\symbletable.cpp.i
 
 CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.s"
-	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\symbletable\symbletable.cpp -o CMakeFiles\miniplc0_lib.dir\symbletable\symbletable.cpp.s
+	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Administrator\Desktop\BigHomework\C0\symbletable\symbletable.cpp -o CMakeFiles\miniplc0_lib.dir\symbletable\symbletable.cpp.s
 
 CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.obj: CMakeFiles/miniplc0_lib.dir/flags.make
 CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.obj: CMakeFiles/miniplc0_lib.dir/includes_CXX.rsp
 CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.obj: ../analyser/analyser.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.obj"
-	D:\MinGW\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\miniplc0_lib.dir\analyser\analyser.cpp.obj -c C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\analyser\analyser.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Administrator\Desktop\BigHomework\C0\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.obj"
+	D:\MinGW\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\miniplc0_lib.dir\analyser\analyser.cpp.obj -c C:\Users\Administrator\Desktop\BigHomework\C0\analyser\analyser.cpp
 
 CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.i"
-	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\analyser\analyser.cpp > CMakeFiles\miniplc0_lib.dir\analyser\analyser.cpp.i
+	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Administrator\Desktop\BigHomework\C0\analyser\analyser.cpp > CMakeFiles\miniplc0_lib.dir\analyser\analyser.cpp.i
 
 CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.s"
-	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\analyser\analyser.cpp -o CMakeFiles\miniplc0_lib.dir\analyser\analyser.cpp.s
+	D:\MinGW\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Administrator\Desktop\BigHomework\C0\analyser\analyser.cpp -o CMakeFiles\miniplc0_lib.dir\analyser\analyser.cpp.s
 
 # Object files for target miniplc0_lib
 miniplc0_lib_OBJECTS = \
@@ -112,7 +112,7 @@ libminiplc0_lib.a: CMakeFiles/miniplc0_lib.dir/symbletable/symbletable.cpp.obj
 libminiplc0_lib.a: CMakeFiles/miniplc0_lib.dir/analyser/analyser.cpp.obj
 libminiplc0_lib.a: CMakeFiles/miniplc0_lib.dir/build.make
 libminiplc0_lib.a: CMakeFiles/miniplc0_lib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libminiplc0_lib.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\Administrator\Desktop\BigHomework\C0\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libminiplc0_lib.a"
 	$(CMAKE_COMMAND) -P CMakeFiles\miniplc0_lib.dir\cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\miniplc0_lib.dir\link.txt --verbose=$(VERBOSE)
 
@@ -126,6 +126,6 @@ CMakeFiles/miniplc0_lib.dir/clean:
 .PHONY : CMakeFiles/miniplc0_lib.dir/clean
 
 CMakeFiles/miniplc0_lib.dir/depend:
-	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\cmake-build-debug C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\cmake-build-debug C:\Users\Administrator\Desktop\BigHomework\miniplc0-compiler\cmake-build-debug\CMakeFiles\miniplc0_lib.dir\DependInfo.cmake --color=$(COLOR)
+	$(CMAKE_COMMAND) -E cmake_depends "MinGW Makefiles" C:\Users\Administrator\Desktop\BigHomework\C0 C:\Users\Administrator\Desktop\BigHomework\C0 C:\Users\Administrator\Desktop\BigHomework\C0\cmake-build-debug C:\Users\Administrator\Desktop\BigHomework\C0\cmake-build-debug C:\Users\Administrator\Desktop\BigHomework\C0\cmake-build-debug\CMakeFiles\miniplc0_lib.dir\DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/miniplc0_lib.dir/depend
 

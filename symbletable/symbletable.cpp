@@ -92,7 +92,20 @@ namespace miniplc0 {
         return -1;
     }
 
-
+    int32_t SymbleTable:: getSizeByName(const std::string &s){
+        SymbleTable symbleTable = *this;
+        while(father != nullptr)
+        {
+            for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
+                if(s == symbleTable.List[i].getName())
+                {
+                    return symbleTable.List[i].getSize();
+                }
+            if(symbleTable.father == nullptr) break;
+            symbleTable = *symbleTable.father;
+        }
+        return -1;
+    }
     bool SymbleTable::operator==(const SymbleTable &rhs) const {
         return List == rhs.List &&
                List.size() == rhs.List.size() &&
@@ -168,4 +181,39 @@ namespace miniplc0 {
     }
 
 
+    const std::string &function::getName() const {
+        return _name;
+    }
+
+    void function::setName(const std::string &name) {
+        _name = name;
+    }
+
+    const std::vector<std::pair<std::string, int32_t>> &function::getParams() const {
+        return _params;
+    }
+
+    void function::setParams(const std::vector<std::pair<std::string, int32_t>> &params) {
+        _params = params;
+    }
+
+    int32_t function::getType() const {
+        return _type;
+    }
+
+    void function::setType(int32_t type) {
+        _type = type;
+    }
+
+    bool function::operator==(const function &rhs) const {
+        return _name == rhs._name &&
+               _params == rhs._params &&
+               _type == rhs._type;
+    }
+
+    bool function::operator!=(const function &rhs) const {
+        return !(rhs == *this);
+    }
+
+    function::function(const std::string &name, int32_t type) : _name(name), _type(type) {}
 }

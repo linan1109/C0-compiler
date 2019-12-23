@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/Administrator/Desktop/BigHomework/miniplc0-compiler/3rd_party/fmt
+# Install script for directory: C:/Users/Administrator/Desktop/BigHomework/C0/3rd_party/fmt
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

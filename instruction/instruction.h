@@ -26,6 +26,7 @@ namespace miniplc0 {
         cprint,
         sprint,
         loadc,
+        cload,
     };
 
 	class Instruction final {

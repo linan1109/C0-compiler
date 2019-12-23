@@ -46,6 +46,7 @@ namespace miniplc0 {
         ErrNeedRightMultipicationSign,
         ErrNeedDoubleQuotes,
         ErrNeedSingalQuote,
+        ErrLessParams,
     };
 
 	class CompilationError final{

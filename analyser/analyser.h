@@ -22,7 +22,7 @@ namespace miniplc0 {
 	public:
 		Analyser(std::vector<Token> v)
 			: _tokens(std::move(v)), _offset(0), _instructions({}), _current_pos(0, 0),
-              _symbleTable(),_all_index(0), _nextTokenIndex(0), _stringTable({}){}
+              _symbleTable(),_all_index(0), _nextTokenIndex(0), _stringTable({}), _functions({}){}
 		Analyser(Analyser&&) = delete;
 		Analyser(const Analyser&) = delete;
 		Analyser& operator=(Analyser) = delete;
@@ -49,7 +49,7 @@ namespace miniplc0 {
         SymbleTable _symbleTable;
         int32_t _all_index;
         std::vector<std::string> _stringTable;
-
+        std::vector<function> _functions;
 		// 下一个 token 在栈的偏移
 		int32_t _nextTokenIndex;
 

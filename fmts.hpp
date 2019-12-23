@@ -96,6 +96,9 @@ namespace fmt {
                 case miniplc0::ErrNeedSingalQuote:
                     name = "There should be a \' .";
                     break;
+                case miniplc0::ErrLessParams:
+                    name = "Need more Params.";
+                    break;
             }
             return format_to(ctx.out(), name);
         }
@@ -309,7 +312,9 @@ namespace fmt {
                 case miniplc0::loadc:
                     name = "loadc";
                     break;
-
+                case miniplc0::cload:
+                    name = "cload";
+                    break;
             }
             return format_to(ctx.out(), name);
         }
@@ -339,6 +344,7 @@ namespace fmt {
                 case miniplc0::iprint:
                 case miniplc0::cprint:
                 case miniplc0::sprint:
+                case miniplc0::cload:
                     return format_to(ctx.out(), "{}", p.GetOperation());
                 case miniplc0::ipush:
                 case miniplc0::cpush:

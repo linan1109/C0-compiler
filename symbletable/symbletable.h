@@ -3,7 +3,7 @@
 #include <optional>
 #include <utility>
 #include <cstdint>
-
+#include <algorithm>
 namespace miniplc0 {
     class one_symbol final{
         std::string _name;            //标识符名称
@@ -91,8 +91,38 @@ namespace miniplc0 {
         bool changeSizeOfFun(const std::string &s, int32_t size);
 
         one_symbol * getByName(const std::string &s);
+
+        int32_t getSizeByName(const std::string &s);
     };
 
+    class function{
+    private:
+        std::string _name;
+        std::vector< std::pair<std::string, int32_t > > _params;
+        int32_t _type;
+        //name
+        //                                0：void(仅对于无返回值函数)
+        //                                1：int32_t
+        //                                2: char
+    public:
+        function(const std::string &name, int32_t type);
 
+    public:
+        bool operator==(const function &rhs) const;
+
+        bool operator!=(const function &rhs) const;
+
+        const std::string &getName() const;
+
+        void setName(const std::string &name);
+
+        const std::vector<std::pair<std::string, int32_t>> &getParams() const;
+
+        void setParams(const std::vector<std::pair<std::string, int32_t>> &params);
+
+        int32_t getType() const;
+
+        void setType(int32_t type);
+    };
 }
 
