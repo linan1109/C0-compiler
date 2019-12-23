@@ -29,7 +29,7 @@ namespace miniplc0 {
 
     one_symbol * SymbleTable:: getByName(const std::string &s){
         SymbleTable symbleTable = *this;
-        while(father != nullptr)
+        while(true)
         {
             for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
                 if(s == symbleTable.List[i].getName())
@@ -49,12 +49,12 @@ namespace miniplc0 {
         std::pair<int32_t ,int32_t > pii;
         pii.first = -1;
         pii.second = 0;
-        while(father != nullptr)
+        while(true)
         {
             for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
                 if(s == symbleTable.List[i].getName())
                 {
-                    pii.first = symbleTable.List[i].getAllIndex();
+                    pii.first = i;
                     return pii;
                 }
             if(symbleTable.father == nullptr) break;
@@ -63,9 +63,20 @@ namespace miniplc0 {
         }
         return pii;
     }
+    int32_t SymbleTable:: getLevel(){
+        SymbleTable symbleTable = *this;
+        int i = 0;
+        while(true)
+        {
+            if(symbleTable.father == nullptr) return i;
+            i++;
+            symbleTable = *symbleTable.father;
+        }
+        return -1;
+    }
     int32_t SymbleTable:: getKindByName(const std::string &s){
         SymbleTable symbleTable = *this;
-        while(father != nullptr)
+        while(true)
         {
             for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
                 if(s == symbleTable.List[i].getName())
@@ -79,7 +90,7 @@ namespace miniplc0 {
     }
     int32_t SymbleTable:: getTypeByName(const std::string &s){
         SymbleTable symbleTable = *this;
-        while(father != nullptr)
+        while(true)
         {
             for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
                 if(s == symbleTable.List[i].getName())
@@ -94,7 +105,7 @@ namespace miniplc0 {
 
     int32_t SymbleTable:: getSizeByName(const std::string &s){
         SymbleTable symbleTable = *this;
-        while(father != nullptr)
+        while(true)
         {
             for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
                 if(s == symbleTable.List[i].getName())
@@ -106,15 +117,39 @@ namespace miniplc0 {
         }
         return -1;
     }
+    int32_t SymbleTable::addCount() {
+        count++;
+        return getCount()-1;
+    }
+
+
+    int32_t SymbleTable::getCount() const {
+        return count;
+    }
+
+    void SymbleTable::setCount(int32_t count) {
+        SymbleTable::count = count;
+    }
+
+    const std::string &SymbleTable::getName() const {
+        return name;
+    }
+
+    void SymbleTable::setName(const std::string &name) {
+        SymbleTable::name = name;
+    }
+
     bool SymbleTable::operator==(const SymbleTable &rhs) const {
-        return List == rhs.List &&
-               List.size() == rhs.List.size() &&
-               father == rhs.father;
+        return name == rhs.name &&
+               List == rhs.List &&
+               father == rhs.father &&
+               count == rhs.count;
     }
 
     bool SymbleTable::operator!=(const SymbleTable &rhs) const {
         return !(rhs == *this);
     }
+
 
     one_symbol::one_symbol(const std::string &name, int32_t kind, int32_t type, int32_t value, int32_t size
                            ) : _name(name), _kind(kind), _type(type), _value(value), _size(size) {}
@@ -189,14 +224,6 @@ namespace miniplc0 {
         _name = name;
     }
 
-    const std::vector<std::pair<std::string, int32_t>> &function::getParams() const {
-        return _params;
-    }
-
-    void function::setParams(const std::vector<std::pair<std::string, int32_t>> &params) {
-        _params = params;
-    }
-
     int32_t function::getType() const {
         return _type;
     }
@@ -215,5 +242,57 @@ namespace miniplc0 {
         return !(rhs == *this);
     }
 
-    function::function(const std::string &name, int32_t type) : _name(name), _type(type) {}
+    bool function::addParam(const std::string &name, int32_t kind,int32_t type){
+        for(unsigned long long int i = 0; i < _params.size(); i++){
+            if(name == _params[i].first)
+                return false;
+        }
+        std::pair<std::string, std::pair<int32_t , int32_t > > pii;
+        pii.first = name;
+        pii.second.first = kind;
+        pii.second.second = type;
+        _params.push_back(pii);
+        return true;
+    }
+    void function::addInstruction(int32_t count, Operation operation, int32_t x, int32_t y){
+        _instructions.emplace_back(count,operation,x,y);
+    }
+
+    const std::vector<std::pair<std::string, std::pair<std::int32_t, int32_t>>> &function::getParams() const {
+        return _params;
+    }
+
+    void function::setParams(const std::vector<std::pair<std::string, std::pair<std::int32_t, int32_t>>> &params) {
+        _params = params;
+    }
+
+    const std::vector<Instruction> &function::getInstructions() const {
+        return _instructions;
+    }
+
+    void function::setInstructions(const std::vector<Instruction> &instructions) {
+        _instructions = instructions;
+    }
+
+    function::function(const std::string &name, int32_t type, int32_t level, int32_t nameIndex) : _name(name),
+                                                                                                  _type(type),
+                                                                                                  _level(level),
+                                                                                                  _name_index(
+                                                                                                          nameIndex) {}
+
+    int32_t function::getLevel() const {
+        return _level;
+    }
+
+    void function::setLevel(int32_t level) {
+        _level = level;
+    }
+
+    int32_t function::getNameIndex() const {
+        return _name_index;
+    }
+
+    void function::setNameIndex(int32_t nameIndex) {
+        _name_index = nameIndex;
+    }
 }

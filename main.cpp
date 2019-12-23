@@ -33,9 +33,30 @@ void Analyse(std::istream& input, std::ostream& output){
 		fmt::print(stderr, "Syntactic analysis error: {}\n", p.second.value());
 		exit(2);
 	}
-	auto v = p.first;
+	output <<".constants:\n";
+	auto stringtable = analyser.getStringTable();
+	int co = 0;
+	for(auto &s :stringtable){
+	    output <<co++<<" S \""<<s<<"\"\n";
+	}
+
+
+	auto v = p.first.first;
 	for (auto& it : v)
 		output << fmt::format("{}\n", it);
+
+    output <<".functions:\n";
+	auto funs = analyser.getFunctions();
+    co = 0;
+    for(auto &s :funs){
+        output <<co++<<" "<<s.getNameIndex()<<" "<<s.getParams().size()<<" "<<s.getLevel()<<"\n";
+    }
+
+    std::vector<std::vector<miniplc0::Instruction> >  y = p.first.second;
+	for(auto &x : y)
+        for (auto& it : x)
+            output << fmt::format("{}\n", it);
+
 	return;
 }
 

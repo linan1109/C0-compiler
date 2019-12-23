@@ -14,7 +14,12 @@
 namespace miniplc0 {
 
 	class Analyser final {
-	private:
+    public:
+        const std::vector<std::string> &getStringTable() const;
+
+        const std::vector<function> &getFunctions() const;
+
+    private:
 		using uint64_t = std::uint64_t;
 		using int64_t = std::int64_t;
 		using uint32_t = std::uint32_t;
@@ -22,13 +27,13 @@ namespace miniplc0 {
 	public:
 		Analyser(std::vector<Token> v)
 			: _tokens(std::move(v)), _offset(0), _instructions({}), _current_pos(0, 0),
-              _symbleTable(),_all_index(0), _nextTokenIndex(0), _stringTable({}), _functions({}){}
+              _symbleTable(),_all_index(0), _stringTable({}), _functions({}), _nextTokenIndex(0){}
 		Analyser(Analyser&&) = delete;
 		Analyser(const Analyser&) = delete;
 		Analyser& operator=(Analyser) = delete;
 
 		// 唯一接口
-		std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyse();
+        std::pair<std::pair<std::vector<Instruction>, std::vector<std::vector<Instruction>> >, std::optional<CompilationError>> Analyse();
 	private:
 
 		// Token 缓冲区相关操作
@@ -59,8 +64,6 @@ namespace miniplc0 {
         //C0
         std::optional<CompilationError> C0_program();
 
-        std::optional<CompilationError> function_definition();
-
         std::optional<CompilationError> expression(bool isINT, SymbleTable *symbleTable);
 
         std::optional<CompilationError> cast_expression(bool *isINT, SymbleTable *symbleTable);
@@ -77,11 +80,7 @@ namespace miniplc0 {
 
         std::optional<CompilationError> init_declarator(bool isCONST, bool isINT, SymbleTable *symbleTable);
 
-        std::optional<CompilationError> compound_statement(SymbleTable *symbleTable);
-
-        std::optional<CompilationError> parameter_declaration(SymbleTable *symbleTable);
-
-        std::optional<CompilationError> statement(SymbleTable *symbleTable);
+        std::optional<CompilationError> fun_compound_statement(int32_t & type, SymbleTable *symbleTable);
 
         std::optional<CompilationError> assignment_expression(SymbleTable *symbleTable);
 
@@ -98,5 +97,24 @@ namespace miniplc0 {
         std::optional<CompilationError> printable(SymbleTable *symbleTable);
 
         std::optional<CompilationError> print_expression(bool *isINT, SymbleTable *symbleTable);
+
+        int32_t functionIndex(const std::string &string);
+
+        bool
+        addParamByFunName(const std::string &param, const int32_t kind, const int32_t type, const std::string &name);
+
+        std::optional<CompilationError> statement(SymbleTable *symbleTable, int32_t returntype);
+
+        std::optional<CompilationError> compound_statement(SymbleTable *symbleTable, int32_t funtype);
+
+        std::optional<CompilationError> parameter_declaration(const std::string &funname, SymbleTable *symbleTable);
+
+        std::optional<CompilationError> function_definition();
+
+        std::string newAUuid();
+
+        bool addInstructionByFunName(int32_t count, Operation operation, int32_t x, int32_t y, const std::string &name);
+
+        bool addFun(const std::string &name, const int32_t type, const int32_t name_index, const int32_t level);
     };
 }

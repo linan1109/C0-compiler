@@ -201,7 +201,7 @@ namespace miniplc0 {
                                         std::optional<CompilationError>());
                             } else {
                                 for (long long unsigned int i = 0; i < std::strlen(chxx); i++)
-                                    if (!(chxx[i] > '0' && chxx[i] < '9'))
+                                    if (!(chxx[i] >= '0' && chxx[i] <= '9'))
                                         return std::make_pair(std::optional<Token>(),
                                                               std::make_optional<CompilationError>(pos,
                                                                                                    ErrorCode::ErrInvalidInput));
@@ -222,11 +222,10 @@ namespace miniplc0 {
                             current_char = nextChar();
                             ch = current_char.value();
                         }
-
+                        //unreadLast();
                         // 如果读到的是字母，则存储读到的字符，并切换状态到标识符
                         // 如果读到的字符不是上述情况之一，则回退读到的字符，并解析已经读到的字符串为整数
-
-                        if (!current_char.has_value())unreadLast();
+                        if (current_char.has_value())unreadLast();
                         char *chxx = new char[100];
                         ss >> chxx;
                         if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X')) {
@@ -244,7 +243,7 @@ namespace miniplc0 {
                                     std::optional<CompilationError>());
                         } else {
                             for (long long unsigned int i = 0; i < std::strlen(chxx); i++)
-                                if (!(chxx[i] > '0' && chxx[i] < '9'))
+                                if (!(chxx[i] >= '0' && chxx[i] <= '9'))
                                     return std::make_pair(std::optional<Token>(),
                                                           std::make_optional<CompilationError>(pos,
                                                                                                ErrorCode::ErrInvalidInput));
@@ -422,8 +421,10 @@ namespace miniplc0 {
                                               std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidInput));
                     }
                     case DOUBLE_QUOTES_STATE: {
-                        std::string string = "";
+                        std::string string;
+                        char ch1;
                         auto ch = current_char.value();
+                        ss>>ch1;
                         while(current_char.has_value() && current_char != '\"'){
                             ch = current_char.value();
                             ss<<ch;
@@ -432,7 +433,7 @@ namespace miniplc0 {
                         if(!current_char.has_value() )
                             return std::make_pair(std::optional<Token>(),
                                                   std::make_optional<CompilationError>(pos, ErrorCode::ErrNeedDoubleQuotes));
-                        ss>>string;
+                        getline(ss,string);
                         return std::make_pair(
                                 std::make_optional<Token>(TokenType::STRING_SIGN, string, pos, currentPos()),
                                 std::optional<CompilationError>());
@@ -440,14 +441,16 @@ namespace miniplc0 {
                     case SINGLE_QUOTE_STATE: {
                         auto ch = current_char.value();
                         char c;
-                        ss<<ch;
+                        std::string string;
                         ss>>c;
+                        ss<<ch;
+                        getline(ss,string);
                         current_char = nextChar();
                         if(!current_char.has_value()|| current_char.value() != '\'')
                             return std::make_pair(std::optional<Token>(),
                                                   std::make_optional<CompilationError>(pos, ErrorCode::ErrNeedSingalQuote));
                         return std::make_pair(
-                                std::make_optional<Token>(TokenType::CHAR_SIGN, c, pos, currentPos()),
+                                std::make_optional<Token>(TokenType::CHAR_SIGN, string, pos, currentPos()),
                                 std::optional<CompilationError>());
                     }
                     case BIG_LEFTBRACKET_STATE: {
@@ -532,7 +535,6 @@ namespace miniplc0 {
             _ptr = nextPos();
             return result;
         }
-
         bool Tokenizer::isEOF() {
             return _ptr.first >= _lines_buffer.size();
         }
@@ -543,25 +545,25 @@ namespace miniplc0 {
         }
 
         bool Tokenizer::isReservedWord(const std::string& basicString) {
-            return basicString.compare("const") ||
-                   basicString.compare("void") ||
-                   basicString.compare("int") ||
-                   basicString.compare("char") ||
-                   basicString.compare("double") ||
-                   basicString.compare("struct") ||
-                   basicString.compare("if") ||
-                   basicString.compare("else") ||
-                   basicString.compare("switch") ||
-                   basicString.compare("case") ||
-                   basicString.compare("default") ||
-                   basicString.compare("while") ||
-                   basicString.compare("for") ||
-                   basicString.compare("do") ||
-                   basicString.compare("return") ||
-                   basicString.compare("break") ||
-                   basicString.compare("continue") ||
-                   basicString.compare("print") ||
-                   basicString.compare("scan");
+            return basicString == "const" ||
+                   basicString == "void" ||
+                   basicString == "int" ||
+                   basicString == "char" ||
+                   basicString == "double" ||
+                   basicString == "struct" ||
+                   basicString == "if" ||
+                   basicString == "else" ||
+                   basicString == "switch" ||
+                   basicString == "case" ||
+                   basicString == "default" ||
+                   basicString == "while" ||
+                   basicString == "for" ||
+                   basicString == "do" ||
+                   basicString == "return" ||
+                   basicString == "break" ||
+                   basicString == "continue" ||
+                   basicString == "print" ||
+                   basicString == "scan";
 
         }
     }

@@ -102,13 +102,13 @@ xlocale.h
 format.h
 ../3rd_party/fmt/include/fmt/format.h
 
-C:/Users/Administrator/Desktop/BigHomework/miniplc0-compiler/3rd_party/fmt/src/format.cc
+C:/Users/Administrator/Desktop/BigHomework/C0/3rd_party/fmt/src/format.cc
 fmt/format-inl.h
-C:/Users/Administrator/Desktop/BigHomework/miniplc0-compiler/3rd_party/fmt/src/fmt/format-inl.h
+C:/Users/Administrator/Desktop/BigHomework/C0/3rd_party/fmt/src/fmt/format-inl.h
 
-C:/Users/Administrator/Desktop/BigHomework/miniplc0-compiler/3rd_party/fmt/src/posix.cc
+C:/Users/Administrator/Desktop/BigHomework/C0/3rd_party/fmt/src/posix.cc
 fmt/posix.h
-C:/Users/Administrator/Desktop/BigHomework/miniplc0-compiler/3rd_party/fmt/src/fmt/posix.h
+C:/Users/Administrator/Desktop/BigHomework/C0/3rd_party/fmt/src/fmt/posix.h
 limits.h
 -
 sys/stat.h

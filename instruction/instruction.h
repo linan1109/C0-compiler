@@ -16,7 +16,6 @@ namespace miniplc0 {
         idiv,
         ineg,
         i2c,
-        c2i,
         iload,
         jmp,
         cpush,
@@ -26,7 +25,12 @@ namespace miniplc0 {
         cprint,
         sprint,
         loadc,
-        cload,
+        ret,
+        iret,
+        cret,
+        call,
+        _F,
+        _start,
     };
 
 	class Instruction final {
@@ -35,21 +39,23 @@ namespace miniplc0 {
 	public:
 		friend void swap(Instruction& lhs, Instruction& rhs);
 	public:
-		Instruction(Operation opr, int32_t x, int32_t y) : _opr(opr), _x(x), _y(y) {}
-		
-		Instruction() : Instruction(Operation::iload, 0,0){}
-		Instruction(const Instruction& i) { _opr = i._opr; _x = i._x; _y = i._y;}
+		Instruction(int32_t count, Operation opr, int32_t x, int32_t y) : _opr(opr), _x(x), _y(y),_count(count) {}
+
+		Instruction() : Instruction(0,Operation::iload, 0,0){}
+		Instruction(const Instruction& i) {_count = i._count; _opr = i._opr; _x = i._x; _y = i._y;}
 		Instruction(Instruction&& i) :Instruction() { swap(*this, i); }
 		Instruction& operator=(Instruction i) { swap(*this, i); return *this; }
-		bool operator==(const Instruction& i) const { return _opr == i._opr && _x == i._x && _y == i._y; }
+		bool operator==(const Instruction& i) const { return _opr == i._opr && _x == i._x && _y == i._y &&_count == i._count; }
 
 		Operation GetOperation() const { return _opr; }
 		int32_t GetX() const { return _x; }
         int32_t GetY() const { return _y; }
+        int32_t GetCount() const { return _count; }
 	private:
 		Operation _opr;
 		int32_t _x;
         int32_t _y;
+        int32_t _count;
 	};
 
 	inline void swap(Instruction& lhs, Instruction& rhs) {
@@ -57,5 +63,6 @@ namespace miniplc0 {
 		swap(lhs._opr, rhs._opr);
 		swap(lhs._x, rhs._x);
 		swap(lhs._y, rhs._y);
+		swap(lhs._count,rhs._count);
 	}
 }

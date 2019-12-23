@@ -97,5 +97,7 @@ namespace miniplc0 {
 		std::vector<std::string> _lines_buffer;
 
         static bool isReservedWord(const std::string& basicString);
+
+        std::optional<char> nextCharWithEof();
     };
 }

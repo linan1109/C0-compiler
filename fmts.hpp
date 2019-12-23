@@ -236,6 +236,13 @@ namespace fmt {
                 case miniplc0::MULTI_LINE_COMMENT_LEFT:
                     name = "MultiLineCommentLeft";
                     break;
+                case miniplc0::STRING_SIGN:
+                    name = "String";
+                    break;
+                case miniplc0::CHAR_SIGN:
+                    name = "Char";
+                    break;
+
             }
             return format_to(ctx.out(), name);
         }
@@ -282,9 +289,6 @@ namespace fmt {
                 case miniplc0::i2c:
                     name = "i2c";
                     break;
-                case miniplc0::c2i:
-                    name = "c2i";
-                    break;
                 case miniplc0::iload:
                     name = "iload";
                     break;
@@ -312,8 +316,24 @@ namespace fmt {
                 case miniplc0::loadc:
                     name = "loadc";
                     break;
-                case miniplc0::cload:
-                    name = "cload";
+
+                case miniplc0::ret:
+                    name = "ret";
+                    break;
+                case miniplc0::iret:
+                    name = "iret";
+                    break;
+                case miniplc0::cret:
+                    name = "cret";
+                    break;
+                case miniplc0::call:
+                    name = "call";
+                    break;
+                case miniplc0::_F:
+                    name = ".F";
+                    break;
+                case miniplc0::_start:
+                    name = ".start";
                     break;
             }
             return format_to(ctx.out(), name);
@@ -337,23 +357,31 @@ namespace fmt {
                 case miniplc0::idiv:
                 case miniplc0::ineg:
                 case miniplc0::i2c:
-                case miniplc0::c2i:
                 case miniplc0::iload:
                 case miniplc0::iscan:
                 case miniplc0::cscan:
                 case miniplc0::iprint:
                 case miniplc0::cprint:
                 case miniplc0::sprint:
-                case miniplc0::cload:
-                    return format_to(ctx.out(), "{}", p.GetOperation());
+                case miniplc0::ret:
+                case miniplc0::iret:
+                case miniplc0::cret:
+                    return format_to(ctx.out(), "{} {}", p.GetCount(), p.GetOperation());
                 case miniplc0::ipush:
                 case miniplc0::cpush:
                 case miniplc0::jmp:
                 case miniplc0::loadc:
-                    return format_to(ctx.out(), "{} {}", p.GetOperation(), p.GetX());
+                case miniplc0::call:
+                    return format_to(ctx.out(), "{} {} {}", p.GetCount(), p.GetOperation(), p.GetX());
 
                 case miniplc0::loada:
-                    return format_to(ctx.out(), "{} {} {}", p.GetOperation(), p.GetX(), p.GetY());
+                    return format_to(ctx.out(), "{} {} {} {}", p.GetCount(), p.GetOperation(), p.GetX(), p.GetY());
+
+                case miniplc0::_F:
+                    return format_to(ctx.out(), "{}{}:", p.GetOperation(), p.GetX());
+
+                case miniplc0::_start:
+                    return format_to(ctx.out(), "{}:", p.GetOperation());
             }
             return format_to(ctx.out(), "ILL");
         }

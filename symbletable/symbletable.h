@@ -4,6 +4,8 @@
 #include <utility>
 #include <cstdint>
 #include <algorithm>
+#include <instruction/instruction.h>
+
 namespace miniplc0 {
     class one_symbol final{
         std::string _name;            //标识符名称
@@ -62,17 +64,36 @@ namespace miniplc0 {
 
     class SymbleTable final{
     private:
+        std::string name;
+    public:
+        const std::string &getName() const;
+
+        void setName(const std::string &name);
+
+    private:
         using int32_t = std::int32_t;
         std::vector<one_symbol> List; //符号表
         SymbleTable *father;
     public:
+        int32_t getCount() const;
+
+        void setCount(int32_t count);
+
+    private:
+        int32_t count;
+    public:
         SymbleTable(){
+            name = "";
             father = nullptr;
+            count = 0;
         }
 
-        SymbleTable(SymbleTable *_father){
+        SymbleTable(SymbleTable *_father,std::string _name){
             father = _father;
+            name = _name;
+            count = 0;
         }
+        int32_t addCount();
 
         bool operator==(const SymbleTable &rhs) const;
 
@@ -93,36 +114,61 @@ namespace miniplc0 {
         one_symbol * getByName(const std::string &s);
 
         int32_t getSizeByName(const std::string &s);
+
+        int32_t getLevel();
     };
 
     class function{
     private:
         std::string _name;
-        std::vector< std::pair<std::string, int32_t > > _params;
+        std::vector< std::pair<std::string, std::pair<std::int32_t , int32_t > > >_params;
         int32_t _type;
+        std::vector<Instruction> _instructions;
+        int32_t _level;
+        int32_t _name_index;
         //name
+        //kind                 /*种类
+        //                                0：常量
+        //                                1：变量
+        //type
         //                                0：void(仅对于无返回值函数)
         //                                1：int32_t
         //                                2: char
     public:
-        function(const std::string &name, int32_t type);
+        function(const std::string &name, int32_t type, int32_t level, int32_t nameIndex);
 
     public:
         bool operator==(const function &rhs) const;
 
         bool operator!=(const function &rhs) const;
 
+        int32_t getLevel() const;
+
+        void setLevel(int32_t level);
+
+        int32_t getNameIndex() const;
+
+        void setNameIndex(int32_t nameIndex);
+
         const std::string &getName() const;
 
         void setName(const std::string &name);
 
-        const std::vector<std::pair<std::string, int32_t>> &getParams() const;
-
-        void setParams(const std::vector<std::pair<std::string, int32_t>> &params);
-
         int32_t getType() const;
 
+        const std::vector<Instruction> &getInstructions() const;
+
+        void setInstructions(const std::vector<Instruction> &instructions);
+
         void setType(int32_t type);
+
+        const std::vector<std::pair<std::string, std::pair<std::int32_t, int32_t>>> &getParams() const;
+
+        void setParams(const std::vector<std::pair<std::string, std::pair<std::int32_t, int32_t>>> &params);
+
+        bool addParam(const std::string &name, int32_t kind, int32_t type);
+
+        void addInstruction(const int32_t, Operation operation, int32_t x, int32_t y);
     };
 }
 
