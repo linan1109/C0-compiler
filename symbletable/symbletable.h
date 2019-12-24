@@ -107,6 +107,8 @@ namespace miniplc0 {
 
         int32_t getTypeByName(const std::string &s);
 
+        int32_t getValueByName(const std::string &s);
+
         std::pair<int32_t, int32_t> index_in_all(const std::string &s);
 
         bool changeSizeOfFun(const std::string &s, int32_t size);
@@ -116,6 +118,8 @@ namespace miniplc0 {
         int32_t getSizeByName(const std::string &s);
 
         int32_t getLevel();
+
+        int32_t setValueByName(const std::string &s);
     };
 
     class function{
@@ -135,7 +139,7 @@ namespace miniplc0 {
         //                                1：int32_t
         //                                2: char
     public:
-        function(const std::string &name, int32_t type, int32_t level, int32_t nameIndex);
+        function(const std::string &name, int32_t type, int32_t nameIndex, int32_t level);
 
     public:
         bool operator==(const function &rhs) const;

@@ -375,7 +375,7 @@ namespace fmt {
                     return format_to(ctx.out(), "{} {} {}", p.GetCount(), p.GetOperation(), p.GetX());
 
                 case miniplc0::loada:
-                    return format_to(ctx.out(), "{} {} {} {}", p.GetCount(), p.GetOperation(), p.GetX(), p.GetY());
+                    return format_to(ctx.out(), "{} {} {},{}", p.GetCount(), p.GetOperation(), p.GetX(), p.GetY());
 
                 case miniplc0::_F:
                     return format_to(ctx.out(), "{}{}:", p.GetOperation(), p.GetX());

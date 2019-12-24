@@ -61,7 +61,9 @@ namespace miniplc0 {
                         unreadToken();
                         unreadToken();
                         unreadToken();
-                        function_definition();
+                        auto err = function_definition();
+                        if(err.has_value())
+                            return err;
                     }
 
 
@@ -82,7 +84,9 @@ namespace miniplc0 {
                         unreadToken();
                         unreadToken();
                         unreadToken();
-                        function_definition();
+                        auto err = function_definition();
+                        if(err.has_value())
+                            return err;
                     }
                 }else
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoType_specifier);
@@ -173,7 +177,7 @@ namespace miniplc0 {
             if(!symbleTable->addSymble(name.GetValueString(),kind,type,1,-1))
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDuplicateDeclaration);
             int index = symbleTable->index_in_all(name.GetValueString()).first;
-            addInstructionByFunName(symbleTable->addCount(), Operation::ipush, index, 0,symbleTable->getName());
+            addInstructionByFunName(symbleTable->addCount(), Operation::loada, 0, index, symbleTable->getName());
             //std::printf("ipush 0\n");
             auto err = expression(isINT,symbleTable);
             if (err.has_value())
@@ -301,7 +305,8 @@ namespace miniplc0 {
                         ed.value().GetValueString() == "int" ||
                         ed.value().GetValueString() == "char")){
             unreadToken();
-            variable_declaration(symbleTable);
+            auto err = variable_declaration(symbleTable);
+            if(err.has_value())return err;
             ed = nextToken();
         }
 
@@ -349,7 +354,8 @@ namespace miniplc0 {
             }else if(functionIndex(name) >= 0){//函数_call
                 unreadToken();
                 auto err = function_call(symbleTable);
-                if(err.has_value()) return err;
+                if(err.has_value())
+                    return err;
             } else if(kind == 0)
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrSetConst);
             else
@@ -425,7 +431,9 @@ namespace miniplc0 {
 
         while(ed.has_value() && ed.value().GetType() != BIG_RIGHT_BRACKET ){
             unreadToken();
-            statement(newsymbleTable, funtype);
+            auto err = statement(newsymbleTable, funtype);
+            if(err.has_value())
+                return err;
             ed = nextToken();
         }
         if(!ed.has_value())
@@ -442,7 +450,7 @@ namespace miniplc0 {
 //<printable_list>  ::=  <printable> {',' <printable>}
     std::optional<CompilationError> Analyser::print_statement(SymbleTable *symbleTable) {
         auto ed = nextToken();
-        if(!ed.has_value() || ed.value().GetType() != TokenType::RESERVED_WORD || ed.value().GetValueString() != "scan") {
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RESERVED_WORD || ed.value().GetValueString() != "print") {
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrEOF);
         }
         ed = nextToken();
@@ -480,11 +488,11 @@ namespace miniplc0 {
 
         if(ed.has_value() && ed.value().GetType() == TokenType::CHAR_SIGN){
             char ch = ed.value().GetValueString()[0];
-            addInstructionByFunName(symbleTable->addCount(), Operation::iload,(int)ch, 0, symbleTable->getName());
+            addInstructionByFunName(symbleTable->addCount(), Operation::ipush,(int)ch, 0, symbleTable->getName());
             addInstructionByFunName(symbleTable->addCount(), Operation::cprint,0 , 0, symbleTable->getName());
 
 
-        }else if(!ed.has_value() || ed.value().GetType() != TokenType::STRING_SIGN){
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::STRING_SIGN){
                 addString(ed.value().GetValueString());
                 int32_t index = stringIndex(ed.value().GetValueString());
                 if(index < 0)
@@ -494,6 +502,7 @@ namespace miniplc0 {
 
         }else{
             bool isint;
+            unreadToken();
             auto err = print_expression(&isint,symbleTable);
             if(err.has_value())
                 return err;
@@ -527,15 +536,16 @@ namespace miniplc0 {
         if(!ed.has_value() || ed.value().GetType() != TokenType::IDENTIFIER)
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
         std::string name = ed.value().GetValueString();
-        one_symbol *symbol = symbleTable->getByName(name);
-        int32_t kind = symbol->getKind();
-        if(kind != 1)
+        int32_t kind = symbleTable->getKindByName(name);
+        if(kind == 0)
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrSetConst);
+        else if(kind != 1)
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
 
         std::pair<int32_t ,int32_t > pii = symbleTable->index_in_all(name);
         addInstructionByFunName(symbleTable->addCount(), Operation::loada, pii.second, pii.first, symbleTable->getName());
 
-        int32_t type = symbol->getType();
+        int32_t type = symbleTable->getTypeByName(name);
         if(type == 1) {//int
             addInstructionByFunName(symbleTable->addCount(), Operation::iscan, 0, 0, symbleTable->getName());
             addInstructionByFunName(symbleTable->addCount(), Operation::istore, 0, 0, symbleTable->getName());
@@ -555,6 +565,8 @@ namespace miniplc0 {
         if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON) {
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
         }
+
+        symbleTable->setValueByName(name);
         return {};
     }
 
@@ -567,11 +579,11 @@ namespace miniplc0 {
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
         std::string name = ed.value().GetValueString();
 
-        one_symbol * oneSymbol = symbleTable->getByName(name);
-        if(oneSymbol->getKind() == -1)
+
+        if(symbleTable->getKindByName(name) == -1)
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
-        int type = oneSymbol->getType();
-        oneSymbol->setValue(1);
+        int type = symbleTable->getTypeByName(name);
+        symbleTable->setValueByName(name);
 
         // =
         ed = nextToken();
@@ -617,12 +629,12 @@ namespace miniplc0 {
 
         std::vector< std::pair<std::string, std::pair<std::int32_t , int32_t > > >params = _functions[index].getParams();
 
-        for(int i = 0; i < params.size();i++){
+        for(unsigned long long int i = 0; i < params.size();i++){
             bool isINT = params[i].second.second ==1;
             auto err = expression(isINT,symbleTable);
             if(err.has_value())
                 return err;
-            if(i != params.size()-1)
+            if(i < params.size()-1)
             {
                 ed = nextToken();
                 if(!ed.has_value() || ed.value().GetType() != TokenType::COMMA_SIGN)
@@ -763,11 +775,15 @@ namespace miniplc0 {
             //<标识符>
             case TokenType::IDENTIFIER: {
                 std::string str = next.value().GetValueString();
+
+                if(symbleTable->getValueByName(str) == 0)
+                    return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
+
                 int32_t kind = symbleTable->getKindByName(str);
                 if(kind == 0 || kind == 1){
                     std::pair<int32_t ,int32_t > pii = symbleTable->index_in_all(str);
                     if(pii.first == -1)
-                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
                     int32_t type = symbleTable->getTypeByName(str);
                     if(type == 1) {
                         *isINT = true;
@@ -787,8 +803,8 @@ namespace miniplc0 {
                     auto err = function_call(symbleTable);
                     if(err.has_value())
                         return err;
-                }
-
+                }else
+                    return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
                 break;
             }
 
@@ -818,7 +834,9 @@ namespace miniplc0 {
             //<char_串>
             case TokenType::CHAR_SIGN:{
                 std::string string = next.value().GetValueString();
-                int32_t int32 = std::atoi(string.c_str());
+                char c;
+                sscanf(string.c_str(),"%c",&c);
+                auto int32 = (int32_t)c;
                 addInstructionByFunName(symbleTable->addCount(), Operation::cpush, int32, 0, symbleTable->getName());
                 break;
             }

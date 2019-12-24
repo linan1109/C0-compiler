@@ -102,7 +102,35 @@ namespace miniplc0 {
         }
         return -1;
     }
-
+    int32_t SymbleTable:: setValueByName(const std::string &s){
+        SymbleTable *symbleTable = this;
+        while(true)
+        {
+            for(long long unsigned int i = 0; i < symbleTable->List.size();i++)
+                if(s == symbleTable->List[i].getName())
+                {
+                    symbleTable->List[i].setValue(1);
+                    return i;
+                }
+            if(symbleTable->father == nullptr) break;
+            symbleTable = symbleTable->father;
+        }
+        return -1;
+    }
+    int32_t SymbleTable:: getValueByName(const std::string &s){
+        SymbleTable symbleTable = *this;
+        while(true)
+        {
+            for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
+                if(s == symbleTable.List[i].getName())
+                {
+                    return symbleTable.List[i].getValue();
+                }
+            if(symbleTable.father == nullptr) break;
+            symbleTable = *symbleTable.father;
+        }
+        return -1;
+    }
     int32_t SymbleTable:: getSizeByName(const std::string &s){
         SymbleTable symbleTable = *this;
         while(true)
@@ -274,7 +302,7 @@ namespace miniplc0 {
         _instructions = instructions;
     }
 
-    function::function(const std::string &name, int32_t type, int32_t level, int32_t nameIndex) : _name(name),
+    function::function(const std::string &name, int32_t type, int32_t nameIndex, int32_t level) : _name(name),
                                                                                                   _type(type),
                                                                                                   _level(level),
                                                                                                   _name_index(
