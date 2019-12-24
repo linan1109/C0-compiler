@@ -145,19 +145,7 @@ namespace miniplc0 {
         }
         return -1;
     }
-    int32_t SymbleTable::addCount() {
-        count++;
-        return getCount()-1;
-    }
 
-
-    int32_t SymbleTable::getCount() const {
-        return count;
-    }
-
-    void SymbleTable::setCount(int32_t count) {
-        SymbleTable::count = count;
-    }
 
     const std::string &SymbleTable::getName() const {
         return name;
@@ -170,8 +158,7 @@ namespace miniplc0 {
     bool SymbleTable::operator==(const SymbleTable &rhs) const {
         return name == rhs.name &&
                List == rhs.List &&
-               father == rhs.father &&
-               count == rhs.count;
+               father == rhs.father;
     }
 
     bool SymbleTable::operator!=(const SymbleTable &rhs) const {
@@ -290,8 +277,8 @@ namespace miniplc0 {
         _params.push_back(pii);
         return true;
     }
-    void function::addInstruction(int32_t count, Operation operation, int32_t x, int32_t y){
-        _instructions.emplace_back(count,operation,x,y);
+    void function::addInstruction(Operation operation, int32_t x, int32_t y){
+        _instructions.emplace_back(_count++,operation,x,y);
     }
 
     const std::vector<std::pair<std::string, std::pair<std::int32_t, int32_t>>> &function::getParams() const {
@@ -314,7 +301,9 @@ namespace miniplc0 {
                                                                                                   _type(type),
                                                                                                   _level(level),
                                                                                                   _name_index(
-                                                                                                          nameIndex) {}
+                                                                                                          nameIndex) {
+        _count = 0;
+    }
 
     int32_t function::getLevel() const {
         return _level;
@@ -337,16 +326,18 @@ namespace miniplc0 {
         return true;
     }
 
-    bool function::addBreak(int32_t count) {
-        _break_counts.push_back(count);
-        return true;
+
+    int32_t function::getCount() const {
+        return _count;
     }
 
-    const std::vector<int32_t> &function::getBreakCounts() const {
-        return _break_counts;
+    void function::setCount(int32_t count) {
+        _count = count;
     }
 
-    void function::setBreakCounts(const std::vector<int32_t> &breakCounts) {
-        _break_counts = breakCounts;
+    int32_t function::addCount() {
+        _count++;
+        return _count-1;
     }
+
 }

@@ -68,7 +68,6 @@ namespace miniplc0 {
         using int32_t = std::int32_t;
         std::vector<one_symbol> List; //符号表
         SymbleTable *father;
-        int32_t count;
 
     public:
         SymbleTable *getFather() const;
@@ -80,22 +79,17 @@ namespace miniplc0 {
 
         void setName(const std::string &name);
 
-        int32_t getCount() const;
 
-        void setCount(int32_t count);
 
         SymbleTable(){
             name = "";
             father = nullptr;
-            count = 0;
         }
 
         SymbleTable(SymbleTable *_father,std::string _name){
             father = _father;
             name = _name;
-            count = 0;
         }
-        int32_t addCount();
 
         bool operator==(const SymbleTable &rhs) const;
 
@@ -132,7 +126,8 @@ namespace miniplc0 {
         std::vector<Instruction> _instructions;
         int32_t _level;
         int32_t _name_index;
-        std::vector<int32_t> _break_counts;
+        int32_t _count;
+
         //name
         //kind                 /*种类
         //                                0：常量
@@ -142,9 +137,12 @@ namespace miniplc0 {
         //                                1：int32_t
         //                                2: char
     public:
+        int32_t getCount() const;
+
+        void setCount(int32_t count);
+
         function(const std::string &name, int32_t type, int32_t nameIndex, int32_t level);
 
-    public:
         bool operator==(const function &rhs) const;
 
         bool operator!=(const function &rhs) const;
@@ -175,15 +173,10 @@ namespace miniplc0 {
 
         bool addParam(const std::string &name, int32_t kind, int32_t type);
 
-        void addInstruction(const int32_t, Operation operation, int32_t x, int32_t y);
-
         bool setInstructionX(int32_t Index, int32_t x);
+        int32_t addCount();
 
-        bool addBreak(int32_t count);
-
-        const std::vector<int32_t> &getBreakCounts() const;
-
-        void setBreakCounts(const std::vector<int32_t> &breakCounts);
+        void addInstruction(Operation operation, int32_t x, int32_t y);
     };
 }
 

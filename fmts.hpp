@@ -386,7 +386,7 @@ namespace fmt {
                 case miniplc0::sprint:
                 case miniplc0::ret:
                 case miniplc0::iret:
-                    return format_to(ctx.out(), "{} {}", p.GetCount(), p.GetOperation());
+                    return format_to(ctx.out(), "{} {}", p.GetCount()-1, p.GetOperation());
                 case miniplc0::ipush:
                 case miniplc0::bipush:
                 case miniplc0::jmp:
@@ -398,10 +398,10 @@ namespace fmt {
                 case miniplc0::jl:
                 case miniplc0::jg:
                 case miniplc0::jge:
-                    return format_to(ctx.out(), "{} {} {}", p.GetCount(), p.GetOperation(), p.GetX());
+                    return format_to(ctx.out(), "{} {} {}", p.GetCount()-1, p.GetOperation(), p.GetX());
 
                 case miniplc0::loada:
-                    return format_to(ctx.out(), "{} {} {},{}", p.GetCount(), p.GetOperation(), p.GetX(), p.GetY());
+                    return format_to(ctx.out(), "{} {} {},{}", p.GetCount()-1, p.GetOperation(), p.GetX(), p.GetY());
 
                 case miniplc0::_F:
                     return format_to(ctx.out(), "{}{}:", p.GetOperation(), p.GetX());
