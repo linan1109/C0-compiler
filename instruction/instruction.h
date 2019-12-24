@@ -9,7 +9,6 @@ namespace miniplc0 {
 	    loada,
         ipush,
         istore,
-        cstore,
         iadd,
         isub,
         imul,
@@ -18,7 +17,7 @@ namespace miniplc0 {
         i2c,
         iload,
         jmp,
-        cpush,
+        bipush,
         iscan,
         cscan,
         iprint,
@@ -27,10 +26,15 @@ namespace miniplc0 {
         loadc,
         ret,
         iret,
-        cret,
         call,
         _F,
         _start,
+        je,
+        jne,
+        jl,
+        jge,
+        jg,
+        jle,
     };
 
 	class Instruction final {
@@ -50,13 +54,20 @@ namespace miniplc0 {
 		Operation GetOperation() const { return _opr; }
 		int32_t GetX() const { return _x; }
         int32_t GetY() const { return _y; }
+
         int32_t GetCount() const { return _count; }
+
+        void setX(int32_t x) {
+            _x = x;
+        }
 	private:
 		Operation _opr;
 		int32_t _x;
         int32_t _y;
         int32_t _count;
-	};
+
+
+    };
 
 	inline void swap(Instruction& lhs, Instruction& rhs) {
 		using std::swap;
@@ -65,4 +76,6 @@ namespace miniplc0 {
 		swap(lhs._y, rhs._y);
 		swap(lhs._count,rhs._count);
 	}
+
+
 }

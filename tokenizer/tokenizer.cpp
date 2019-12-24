@@ -195,6 +195,10 @@ namespace miniplc0 {
                                                                                                    ErrorCode::ErrInvalidInput));
                                 unsigned int lngHex;
                                 sscanf(chxx + 2, "%x", &lngHex);
+                                if(lngHex > 2147483647)
+                                    return std::make_pair(std::optional<Token>(),
+                                                          std::make_optional<CompilationError>(pos,
+                                                                                               ErrorCode::ErrIntegerOverflow));
                                 std::string str = std::to_string(lngHex);
                                 return std::make_pair(
                                         std::make_optional<Token>(TokenType::UNSIGNED_INTEGER, str, pos, currentPos()),
@@ -207,6 +211,10 @@ namespace miniplc0 {
                                                                                                    ErrorCode::ErrInvalidInput));
                                 long long int lngHex;
                                 sscanf(chxx, "%lld", &lngHex);
+                                if(lngHex > 2147483647)
+                                    return std::make_pair(std::optional<Token>(),
+                                                          std::make_optional<CompilationError>(pos,
+                                                                                               ErrorCode::ErrIntegerOverflow));
                                 std::string str = std::to_string(lngHex);
 
                                 return std::make_pair(
@@ -237,6 +245,10 @@ namespace miniplc0 {
                                                                                                ErrorCode::ErrInvalidInput));
                             unsigned int lngHex;
                             sscanf(chxx, "%x", &lngHex);
+                            if(lngHex > 2147483647)
+                                return std::make_pair(std::optional<Token>(),
+                                                      std::make_optional<CompilationError>(pos,
+                                                                                           ErrorCode::ErrIntegerOverflow));
                             std::string str = std::to_string(lngHex);
                             return std::make_pair(
                                     std::make_optional<Token>(TokenType::UNSIGNED_INTEGER, str, pos, currentPos()),
@@ -249,6 +261,10 @@ namespace miniplc0 {
                                                                                                ErrorCode::ErrInvalidInput));
                             long long int lngHex;
                             sscanf(chxx, "%lld", &lngHex);
+                            if(lngHex > 2147483647)
+                                return std::make_pair(std::optional<Token>(),
+                                                      std::make_optional<CompilationError>(pos,
+                                                                                           ErrorCode::ErrIntegerOverflow));
                             std::string str = std::to_string(lngHex);
                             return std::make_pair(
                                     std::make_optional<Token>(TokenType::UNSIGNED_INTEGER, str, pos, currentPos()),
@@ -427,7 +443,20 @@ namespace miniplc0 {
                         ss>>ch1;
                         while(current_char.has_value() && current_char != '\"'){
                             ch = current_char.value();
-                            ss<<ch;
+                            if(ch == '\'' || ch == '\r'|| ch == '\n')
+                                return std::make_pair(std::optional<Token>(),
+                                                      std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidInput));
+                            if(ch == '\\'){
+                                unreadLast();
+                                std::string str = isNextEscapeSeqRetStr();
+                                if(str != "-1")
+                                {
+                                    ss<<str;
+                                }
+                                else return std::make_pair(std::optional<Token>(),
+                                                           std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidInput));
+                            }
+                            else ss<<ch;
                             current_char = nextChar();
                         }
                         if(!current_char.has_value() )
@@ -440,6 +469,25 @@ namespace miniplc0 {
                     }
                     case SINGLE_QUOTE_STATE: {
                         auto ch = current_char.value();
+                        if(ch == '\\'){
+                            unreadLast();
+                            int num = isNextEscapeSeq();
+                            if(num >= 0)
+                            {
+                                current_char = nextChar();
+                                if(!current_char.has_value()|| current_char.value() != '\'')
+                                    return std::make_pair(std::optional<Token>(),
+                                                          std::make_optional<CompilationError>(pos, ErrorCode::ErrNeedSingalQuote));
+                                return std::make_pair(
+                                        std::make_optional<Token>(TokenType::CHAR_SIGN, (char)num, pos, currentPos()),
+                                        std::optional<CompilationError>());
+                            }
+                            else return std::make_pair(std::optional<Token>(),
+                                                       std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidInput));
+                        }
+                        if(ch == '\"' || ch == '\r'|| ch == '\n')
+                            return std::make_pair(std::optional<Token>(),
+                                                  std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidInput));
                         char c;
                         std::string string;
                         ss>>c;
@@ -543,6 +591,109 @@ namespace miniplc0 {
         void Tokenizer::unreadLast() {
             _ptr = previousPos();
         }
+
+    int32_t Tokenizer::isNextEscapeSeq() {
+        auto current_char = nextChar();
+        if(current_char.has_value() && current_char.value() =='\\'){
+            current_char = nextChar();
+            if(current_char.has_value() && current_char.value() =='\\'){
+                return 92;
+            }else if(current_char.has_value() && current_char.value() =='\''){
+                return 39;
+            }else if(current_char.has_value() && current_char.value() =='\"'){
+                return 34;
+            }else if(current_char.has_value() && current_char.value() =='n'){
+                return 10;
+            }else if(current_char.has_value() && current_char.value() =='r'){
+                return 13;
+            }else if(current_char.has_value() && current_char.value() =='t'){
+                return 9;
+            }else if(current_char.has_value() && current_char.value() =='x'){
+                current_char = nextChar();
+                if(!current_char.has_value()) {
+                    return -1;
+                }
+                if((current_char >= '0' && current_char <= '9')
+                || (current_char >= 'a' && current_char <= 'f')
+                || (current_char >= 'A' && current_char <= 'F'))
+                {
+                    std::string string;
+                    string[0] = current_char.value();
+                    current_char = nextChar();
+                    if(!current_char.has_value()) return -1;
+                    if((current_char >= '0' && current_char <= '9')
+                       || (current_char >= 'a' && current_char <= 'f')
+                       || (current_char >= 'A' && current_char <= 'F'))
+                    {
+                        string[1] = current_char.value();
+                        unsigned int num;
+                        sscanf(string.c_str(),"%x",&num);
+                        return (int32_t) num;
+                    } else return -1;
+                } else return -1;
+            }
+            else{
+                unreadLast();
+                unreadLast();
+                return -1;
+            }
+        }else{
+            unreadLast();
+            return -1;
+        }
+
+    }
+    std::string Tokenizer::isNextEscapeSeqRetStr() {
+        auto current_char = nextChar();
+        if(current_char.has_value() && current_char.value() =='\\'){
+            current_char = nextChar();
+            if(current_char.has_value() && current_char.value() =='\\'){
+                return "\\\\";
+            }else if(current_char.has_value() && current_char.value() =='\''){
+                return "\\\'";
+            }else if(current_char.has_value() && current_char.value() =='\"'){
+                return "\\\"";
+            }else if(current_char.has_value() && current_char.value() =='n'){
+                return "\\n";
+            }else if(current_char.has_value() && current_char.value() =='r'){
+                return "\\r";
+            }else if(current_char.has_value() && current_char.value() =='t'){
+                return "\\t";
+            }else if(current_char.has_value() && current_char.value() =='x'){
+                current_char = nextChar();
+                if(!current_char.has_value()) {
+                    return "-1";
+                }
+                if((current_char >= '0' && current_char <= '9')
+                   || (current_char >= 'a' && current_char <= 'f')
+                   || (current_char >= 'A' && current_char <= 'F'))
+                {
+                    char string[5];
+                    string[0] = '\\';
+                    string[1] = 'x';
+                    string[2] = current_char.value();
+                    current_char = nextChar();
+                    if(!current_char.has_value()) return "-1";
+                    if((current_char >= '0' && current_char <= '9')
+                       || (current_char >= 'a' && current_char <= 'f')
+                       || (current_char >= 'A' && current_char <= 'F'))
+                    {
+                        string[3] = current_char.value();
+                        return string;
+                    } else return "-1";
+                } else return "-1";
+            }
+            else{
+                unreadLast();
+                unreadLast();
+                return "-1";
+            }
+        }else{
+            unreadLast();
+            return "-1";
+        }
+
+    }
 
         bool Tokenizer::isReservedWord(const std::string& basicString) {
             return basicString == "const" ||

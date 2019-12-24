@@ -178,6 +178,14 @@ namespace miniplc0 {
         return !(rhs == *this);
     }
 
+    SymbleTable *SymbleTable::getFather() const {
+        return father;
+    }
+
+    void SymbleTable::setFather(SymbleTable *father) {
+        SymbleTable::father = father;
+    }
+
 
     one_symbol::one_symbol(const std::string &name, int32_t kind, int32_t type, int32_t value, int32_t size
                            ) : _name(name), _kind(kind), _type(type), _value(value), _size(size) {}
@@ -322,5 +330,23 @@ namespace miniplc0 {
 
     void function::setNameIndex(int32_t nameIndex) {
         _name_index = nameIndex;
+    }
+
+    bool function::setInstructionX(int32_t Index, int32_t x) {
+        _instructions[Index].setX(x);
+        return true;
+    }
+
+    bool function::addBreak(int32_t count) {
+        _break_counts.push_back(count);
+        return true;
+    }
+
+    const std::vector<int32_t> &function::getBreakCounts() const {
+        return _break_counts;
+    }
+
+    void function::setBreakCounts(const std::vector<int32_t> &breakCounts) {
+        _break_counts = breakCounts;
     }
 }

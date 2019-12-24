@@ -22,6 +22,11 @@ namespace miniplc0 {
     }
 
 
+    std::optional<CompilationError> Analyser::check_main() {
+        if(functionIndex("main") < 0)
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedMain);
+        return{};
+    }
     //<C0-program> ::=
     //        {<变量_声明>}{<函数_定义>}
     //<C0_program> ::=
@@ -91,13 +96,11 @@ namespace miniplc0 {
                 }else
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoType_specifier);
             }
-//            auto err = variable_declaration(&_symbleTable);
-//            if (err.has_value())
-//                return err;
-//            err = function_definition();
-//            if (err.has_value())
-//                return err;
         }
+        auto err = check_main();
+        if(err.has_value())
+            return err;
+
         return {};
     }
 
@@ -184,12 +187,12 @@ namespace miniplc0 {
                 return err;
             //存值
             if(isINT) {
-                _instructions.emplace_back(symbleTable->addCount(), Operation::istore, 0, 0);
+                addInstructionByFunName(symbleTable->addCount(), Operation::istore, 0, 0,symbleTable->getName());
                 //std::printf("istore\n");
             }
             else {
-                _instructions.emplace_back(symbleTable->addCount(), Operation::cstore, 0, 0);
-                //std::printf("cstore\n");
+                addInstructionByFunName(symbleTable->addCount(), Operation::istore, 0, 0,symbleTable->getName());
+                //std::printf("istore\n");
             }
         }else {
             if(!symbleTable->addSymble(name.GetValueString(),kind,type,0,-1))
@@ -313,14 +316,15 @@ namespace miniplc0 {
         while(ed.has_value() && ed.value().GetType() != BIG_RIGHT_BRACKET ){
             unreadToken();
 
-            auto err = statement(symbleTable, type);
+            auto err = statement(symbleTable, symbleTable, type);
             if(err.has_value())
                 return err;
             ed = nextToken();
         }
         if(!ed.has_value())
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
-
+        if(functionType(symbleTable->getName()) == 0)
+            addInstructionByFunName(symbleTable->addCount(), Operation::ret, 0, 0,symbleTable->getName());
 
         return {};
     }
@@ -333,18 +337,19 @@ namespace miniplc0 {
 //	{<statement>}
 //<语句> ::=   <作用域_语句> |<条件_语句> |<loop_语句> |<jump_语句> |<print_语句> |<scan_语句> |<赋值_表达式>';' |<函数_call>';' |';'
 //<statement> ::=   <compound_statement> |<condition_statement> |<loop_statement> |<jump_statement> |<print_statement> |<scan_statement> |<assignment_expression>';' |<function_call>';' |';'
-    std::optional<CompilationError> Analyser::statement(SymbleTable *symbleTable, int32_t returntype) {
+ //todo:
+    std::optional<CompilationError> Analyser::statement(SymbleTable *outest, SymbleTable *symbleTable, int32_t returntype) {
         //compound_statement 作用域_语句
         auto ed = nextToken();
         if(ed.has_value() && ed.value().GetType() == TokenType::BIG_LEFT_BRACKET){
             unreadToken();
-            auto err = compound_statement(symbleTable, returntype);
+            auto err = compound_statement(outest, symbleTable, returntype);
             if (err.has_value())
                 return err;
 
         }
         //赋值_表达式  assignment_expression 函数_call
-        if(ed.has_value() && ed.value().GetType() == TokenType::IDENTIFIER) {
+        else if(ed.has_value() && ed.value().GetType() == TokenType::IDENTIFIER) {
             std::string name = ed.value().GetValueString();
             int32_t kind = symbleTable->getKindByName(name);
             if(kind == 1){//赋值_表达式
@@ -365,18 +370,18 @@ namespace miniplc0 {
             if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON)
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
         }
-        if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "scan") {
+        else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "scan") {
             unreadToken();
             auto err = scan_statement(symbleTable);
             if(err.has_value()) return err;
         }
-        if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "print") {
+        else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "print") {
             unreadToken();
             auto err = print_statement(symbleTable);
             if(err.has_value()) return err;
         }
 
-        if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "return") {
+        else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "return") {
             //std::printf("now here \n");
             if (returntype == 0) {
                 addInstructionByFunName(symbleTable->addCount(), Operation::ret, 0, 0,symbleTable->getName());
@@ -391,12 +396,43 @@ namespace miniplc0 {
                 auto err = expression(false, symbleTable);
                 if (err.has_value())
                     return err;
-                addInstructionByFunName(symbleTable->addCount(), Operation::cret, 0, 0, symbleTable->getName());
+                addInstructionByFunName(symbleTable->addCount(), Operation::iret, 0, 0, symbleTable->getName());
             }
             ed = nextToken();
             if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON)
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
         }
+        else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "if") {
+            unreadToken();
+            auto err = condition_statement(outest, symbleTable, returntype);
+            if (err.has_value())
+                return err;
+        }
+        else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "while") {
+            unreadToken();
+            auto err = while_statement(outest, symbleTable, returntype);
+            if (err.has_value())
+                return err;
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "break"){
+            ed = nextToken();
+            if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON)
+                return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+//            if(loop == nullptr)
+//                return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrBreakNoneLoop);
+
+//            SymbleTable * now = symbleTable;
+//            while(now != nullptr && now->getName() != loop->getName()){
+//                addInstructionByFunName(now->addCount(),ret,0,0, now->getName());
+//                now = now->getFather();
+//            }
+//            addInstructionByFunName(loop->addCount(),ret,0,0, loop->getName());
+
+
+//            int32_t newcount = symbleTable->addCount();
+//            addBreakByFunName(newcount, symbleTable->getName());
+        }
+
+
         //todo:
 
 
@@ -405,7 +441,7 @@ namespace miniplc0 {
     }
 
 
-    std::optional<CompilationError> Analyser::compound_statement( SymbleTable *symbleTable, int32_t funtype) {
+    std::optional<CompilationError> Analyser::compound_statement(SymbleTable *outest, SymbleTable *symbleTable, int32_t funtype) {
         auto ed = nextToken();
         if(!ed.has_value() || ed.value().GetType() != TokenType::BIG_LEFT_BRACKET)
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
@@ -429,17 +465,50 @@ namespace miniplc0 {
             ed = nextToken();
         }
 
-        while(ed.has_value() && ed.value().GetType() != BIG_RIGHT_BRACKET ){
-            unreadToken();
-            auto err = statement(newsymbleTable, funtype);
-            if(err.has_value())
-                return err;
-            ed = nextToken();
+        while(ed.has_value() && ed.value().GetType() != BIG_RIGHT_BRACKET ) {
+            if (ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD &&
+                ed.value().GetValueString() == "return") {
+                //std::printf("now here \n");
+                int32_t returntype = functionType(outest->getName());
+                if (returntype == 0) {
+                    addInstructionByFunName(outest->addCount(), Operation::ret, 0, 0, outest->getName());
+                }
+                if (returntype == 1) {
+                    auto err = expression(true, symbleTable);
+                    if (err.has_value())
+                        return err;
+                    addInstructionByFunName(outest->addCount(), Operation::iret, 0, 0, outest->getName());
+                }
+                if (returntype == 2) {
+                    auto err = expression(false, symbleTable);
+                    if (err.has_value())
+                        return err;
+                    addInstructionByFunName(outest->addCount(), Operation::iret, 0, 0, outest->getName());
+                }
+                ed = nextToken();
+                if (!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON)
+                    return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+            }
+                else {
+                    unreadToken();
+                    auto err = statement(outest, newsymbleTable, funtype);
+                    if (err.has_value())
+                        return err;
+                    ed = nextToken();
+                }
+
         }
         if(!ed.has_value())
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 
+//        int count = newsymbleTable->getCount();
+//        std::vector<int32_t > break_counts = getBreakIndexsByFunName(newsymbleTable->getName());
+//        for(auto break_count : break_counts){
+//            changeXByCountAndFunName(break_count, count+1, newsymbleTable->getName());
+//        }
+
         addInstructionByFunName(newsymbleTable->addCount(), Operation::ret, 0, 0, newsymbleTable->getName());
+
 
         return {};
     }
@@ -551,7 +620,7 @@ namespace miniplc0 {
             addInstructionByFunName(symbleTable->addCount(), Operation::istore, 0, 0, symbleTable->getName());
         }else if (type == 2) {//char
             addInstructionByFunName(symbleTable->addCount(), Operation::cscan, 0, 0, symbleTable->getName());
-            addInstructionByFunName(symbleTable->addCount(), Operation::cstore, 0, 0, symbleTable->getName());
+            addInstructionByFunName(symbleTable->addCount(), Operation::istore, 0, 0, symbleTable->getName());
         }else
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
 
@@ -567,6 +636,167 @@ namespace miniplc0 {
         }
 
         symbleTable->setValueByName(name);
+        return {};
+    }
+/********************************************if ********************************************************/
+//<condition_statement> ::=
+//    'if' '(' <condition> ')' <statement> ['else' <statement>]
+
+    std::optional<CompilationError> Analyser::condition_statement(SymbleTable *outest, SymbleTable *symbleTable, int32_t returntype) {
+        auto ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RESERVED_WORD || ed.value().GetValueString() != "if") {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrEOF);
+        }
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::LEFT_BRACKET) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
+        }
+
+        int32_t count;
+        auto err = condition(outest, symbleTable, returntype, &count);
+        if(err.has_value())
+            return err;
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RIGHT_BRACKET) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+        }
+
+        err = statement(outest, symbleTable, returntype);
+        if(err.has_value())
+            return err;
+
+        ed = nextToken();
+        if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "else") {
+            int32_t newcount = symbleTable->addCount();
+            addInstructionByFunName(newcount, Operation::jmp, 0, 0, symbleTable->getName());
+            changeXByCountAndFunName(count+1, symbleTable->getCount(), symbleTable->getName());
+            err = statement(outest, symbleTable, returntype);
+            if(err.has_value())
+                return err;
+            changeXByCountAndFunName(newcount+1, symbleTable->getCount(), symbleTable->getName());
+        } else{
+            unreadToken();
+            changeXByCountAndFunName(count+1, symbleTable->getCount(), symbleTable->getName());
+        }
+
+        return {};
+    }
+//<条件> ::=   <表达式>[<关系_操作符><表达式>]
+//<condition> ::=   <expression>[<relational_operator><expression>]
+    std::optional<CompilationError> Analyser::condition(SymbleTable *outest, SymbleTable *symbleTable, int32_t returntype, int32_t * index) {
+        auto err = expression(true, symbleTable);
+        if(err.has_value())
+            return err;
+        auto ed = nextToken();
+        if(ed.has_value() && ed.value().GetType() == TokenType::DOUBLE_EQUAL_SIGN) {
+            err = expression(true, symbleTable);
+            if(err.has_value())
+                return err;
+
+            addInstructionByFunName(symbleTable->addCount(), Operation::isub, 0, 0, symbleTable->getName());
+            *index = symbleTable->addCount();
+            addInstructionByFunName(*index, Operation::jne, 0, 0, symbleTable->getName());
+
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::GREATER_SIGN) {
+            err = expression(true, symbleTable);
+            if(err.has_value())
+                return err;
+
+            addInstructionByFunName(symbleTable->addCount(), Operation::isub, 0, 0, symbleTable->getName());
+            *index = symbleTable->addCount();
+            addInstructionByFunName(*index, Operation::jle, 0, 0, symbleTable->getName());
+
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::GREATER_EQUAL_SIGN) {
+            err = expression(true, symbleTable);
+            if(err.has_value())
+                return err;
+
+            addInstructionByFunName(symbleTable->addCount(), Operation::isub, 0, 0, symbleTable->getName());
+            *index = symbleTable->addCount();
+            addInstructionByFunName(*index, Operation::jl, 0, 0, symbleTable->getName());
+
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::LESS_SIGN) {
+            err = expression(true, symbleTable);
+            if(err.has_value())
+                return err;
+
+            addInstructionByFunName(symbleTable->addCount(), Operation::isub, 0, 0, symbleTable->getName());
+            *index = symbleTable->addCount();
+            addInstructionByFunName(*index, Operation::jge, 0, 0, symbleTable->getName());
+
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::LESS_EQUAL_SIGN) {
+            err = expression(true, symbleTable);
+            if(err.has_value())
+                return err;
+
+            addInstructionByFunName(symbleTable->addCount(), Operation::isub, 0, 0, symbleTable->getName());
+            *index = symbleTable->addCount();
+            addInstructionByFunName(*index, Operation::jg, 0, 0, symbleTable->getName());
+
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::UNEQUAL_SIGN) {
+            err = expression(true, symbleTable);
+            if(err.has_value())
+                return err;
+
+            addInstructionByFunName(symbleTable->addCount(), Operation::isub, 0, 0, symbleTable->getName());
+            *index = symbleTable->addCount();
+            addInstructionByFunName(*index, Operation::je, 0, 0, symbleTable->getName());
+
+        }else{
+            unreadToken();
+            *index = symbleTable->addCount();
+            addInstructionByFunName(*index, Operation::je, 0, 0, symbleTable->getName());
+        }
+    return {};
+    }
+  //<while_statement> ::=
+    //    'while' '(' <condition> ')' <statement>
+    //todo:
+  std::optional<CompilationError> Analyser::while_statement(SymbleTable *outest, SymbleTable *symbleTable, int32_t returntype) {
+      auto ed = nextToken();
+      if(!ed.has_value() || ed.value().GetType() != TokenType::RESERVED_WORD || ed.value().GetValueString() != "while") {
+          return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrEOF);
+      }
+      ed = nextToken();
+      if(!ed.has_value() || ed.value().GetType() != TokenType::LEFT_BRACKET) {
+          return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
+      }
+
+
+      std::string uuid = newAUuid();
+      addString(uuid);
+      if(!addFun(uuid,0,stringIndex(uuid),symbleTable->getLevel()+1))
+          return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDuplicateDeclaration);
+      int32_t index = functionIndex(uuid);
+      SymbleTable *newsymbleTable = new SymbleTable(symbleTable,uuid);
+      addInstructionByFunName(symbleTable->addCount(), Operation::call, index, 0, symbleTable->getName());
+      addInstructionByFunName(0,Operation::_F, index, 0, uuid);
+
+
+
+      int oldcount = newsymbleTable->getCount();
+      int count;
+      auto err = condition(outest, newsymbleTable, returntype, &count);
+      if(err.has_value())
+          return err;
+
+      ed = nextToken();
+      if(!ed.has_value() || ed.value().GetType() != TokenType::RIGHT_BRACKET) {
+          return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+      }
+
+
+      err = statement(outest, newsymbleTable, returntype);
+      if(err.has_value())
+          return err;
+
+      addInstructionByFunName(newsymbleTable->addCount(), Operation::jmp, oldcount, 0, newsymbleTable->getName());
+      changeXByCountAndFunName(count+1, newsymbleTable->getCount(), newsymbleTable->getName());
+
+
+      addInstructionByFunName(newsymbleTable->addCount(), Operation::ret, 0, 0, newsymbleTable->getName());
+
         return {};
     }
 
@@ -601,7 +831,7 @@ namespace miniplc0 {
         if(type == 1)
             addInstructionByFunName(symbleTable->addCount(), Operation::istore, 0, 0, symbleTable->getName());
         else
-            addInstructionByFunName(symbleTable->addCount(), Operation::cstore, 0, 0, symbleTable->getName());
+            addInstructionByFunName(symbleTable->addCount(), Operation::istore, 0, 0, symbleTable->getName());
 
         return {};
     }
@@ -800,6 +1030,10 @@ namespace miniplc0 {
                 }else if(functionIndex(str) >= 0){
                     //<函数_call>
                     unreadToken();
+                    int32_t  type = functionType(str);
+                    if(type == 1) *isINT = true;
+                    if(type == 0)
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrVoidFun);
                     auto err = function_call(symbleTable);
                     if(err.has_value())
                         return err;
@@ -837,7 +1071,7 @@ namespace miniplc0 {
                 char c;
                 sscanf(string.c_str(),"%c",&c);
                 auto int32 = (int32_t)c;
-                addInstructionByFunName(symbleTable->addCount(), Operation::cpush, int32, 0, symbleTable->getName());
+                addInstructionByFunName(symbleTable->addCount(), Operation::bipush, int32, 0, symbleTable->getName());
                 break;
             }
 
@@ -898,6 +1132,25 @@ namespace miniplc0 {
         }
         return false;
     }
+    bool Analyser::addBreakByFunName(const int32_t count, const std::string& name){
+        addInstructionByFunName(count, Operation::jmp, 0, 0, name);
+        for(auto & _function : _functions){
+            if(name == _function.getName()){
+                return _function.addBreak(count);
+            }
+        }
+        return false;
+    }
+
+    std::vector<int32_t> Analyser::getBreakIndexsByFunName(const std::string& name){
+        for(auto & _function : _functions){
+            if(name == _function.getName()){
+                return _function.getBreakCounts();
+            }
+        }
+        return std::vector<int32_t>();
+    }
+
     bool Analyser::addInstructionByFunName(int32_t count, Operation operation, int32_t x, int32_t y, const std::string& name){
         if(name =="")
             _instructions.emplace_back(count, operation, x, y);
@@ -910,10 +1163,29 @@ namespace miniplc0 {
         return false;
     }
 
+    bool Analyser::changeXByCountAndFunName(int32_t count,int32_t x,const std::string& name){
+        if(name =="")
+            _instructions[count].setX(x);
+        for(auto & _function : _functions){
+            if(name == _function.getName()){
+                _function.setInstructionX(count, x);
+                return true;
+            }
+        }
+        return false;
+    }
+
     int32_t Analyser::functionIndex(const std::string& string){
         for(unsigned long long int i = 0; i < _functions.size(); i++){
             if(string == _functions[i].getName())
                 return i;
+        }
+        return -1;
+    }
+    int32_t Analyser::functionType(const std::string& string){
+        for(unsigned long long int i = 0; i < _functions.size(); i++){
+            if(string == _functions[i].getName())
+                return _functions[i].getType();
         }
         return -1;
     }
@@ -949,6 +1221,7 @@ namespace miniplc0 {
     const std::vector<function> &Analyser::getFunctions() const {
         return _functions;
     }
+
 
 
 }

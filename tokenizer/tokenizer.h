@@ -98,6 +98,8 @@ namespace miniplc0 {
 
         static bool isReservedWord(const std::string& basicString);
 
-        std::optional<char> nextCharWithEof();
+        int32_t isNextEscapeSeq();
+
+        std::string isNextEscapeSeqRetStr();
     };
 }

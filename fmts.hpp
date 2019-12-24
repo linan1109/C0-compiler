@@ -28,7 +28,7 @@ namespace fmt {
                     name = "Identifier is invalid";
                     break;
                 case miniplc0::ErrIntegerOverflow:
-                    name = "The integer is too big(int64_t).";
+                    name = "The integer is too big(int32_t).";
                     break;
                 case miniplc0::ErrNoBegin:
                     name = "The program should start with 'begin'.";
@@ -99,6 +99,17 @@ namespace fmt {
                 case miniplc0::ErrLessParams:
                     name = "Need more Params.";
                     break;
+                case miniplc0::ErrVoidFun:
+                    name = "Can not operate void function.";
+                    break;
+                case miniplc0::ErrNeedMain:
+                    name = "There must be a main function.";
+                    break;
+                case miniplc0::ErrBreakNoneLoop:
+                    name = "There is no loop to break.";
+                    break;
+
+
             }
             return format_to(ctx.out(), name);
         }
@@ -268,9 +279,6 @@ namespace fmt {
                 case miniplc0::istore:
                     name = "istore";
                     break;
-                case miniplc0::cstore:
-                    name = "cstore";
-                    break;
                 case miniplc0::iadd:
                     name = "iadd";
                     break;
@@ -295,8 +303,8 @@ namespace fmt {
                 case miniplc0::jmp:
                     name = "jmp";
                     break;
-                case miniplc0::cpush:
-                    name = "cpush";
+                case miniplc0::bipush:
+                    name = "bipush";
                     break;
                 case miniplc0::iscan:
                     name = "iscan";
@@ -316,15 +324,11 @@ namespace fmt {
                 case miniplc0::loadc:
                     name = "loadc";
                     break;
-
                 case miniplc0::ret:
                     name = "ret";
                     break;
                 case miniplc0::iret:
                     name = "iret";
-                    break;
-                case miniplc0::cret:
-                    name = "cret";
                     break;
                 case miniplc0::call:
                     name = "call";
@@ -334,6 +338,24 @@ namespace fmt {
                     break;
                 case miniplc0::_start:
                     name = ".start";
+                    break;
+                case miniplc0::je:
+                    name = "je";
+                    break;
+                case miniplc0::jne:
+                    name = "jne";
+                    break;
+                case miniplc0::jl:
+                    name = "jl";
+                    break;
+                case miniplc0::jle:
+                    name = "jle";
+                    break;
+                case miniplc0::jg:
+                    name = "jg";
+                    break;
+                case miniplc0::jge:
+                    name = "jge";
                     break;
             }
             return format_to(ctx.out(), name);
@@ -351,7 +373,6 @@ namespace fmt {
             switch (p.GetOperation()) {
                 case miniplc0::iadd:
                 case miniplc0::istore:
-                case miniplc0::cstore:
                 case miniplc0::isub:
                 case miniplc0::imul:
                 case miniplc0::idiv:
@@ -365,13 +386,18 @@ namespace fmt {
                 case miniplc0::sprint:
                 case miniplc0::ret:
                 case miniplc0::iret:
-                case miniplc0::cret:
                     return format_to(ctx.out(), "{} {}", p.GetCount(), p.GetOperation());
                 case miniplc0::ipush:
-                case miniplc0::cpush:
+                case miniplc0::bipush:
                 case miniplc0::jmp:
                 case miniplc0::loadc:
                 case miniplc0::call:
+                case miniplc0::je:
+                case miniplc0::jne:
+                case miniplc0::jle:
+                case miniplc0::jl:
+                case miniplc0::jg:
+                case miniplc0::jge:
                     return format_to(ctx.out(), "{} {} {}", p.GetCount(), p.GetOperation(), p.GetX());
 
                 case miniplc0::loada:

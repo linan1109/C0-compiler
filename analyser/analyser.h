@@ -103,10 +103,6 @@ namespace miniplc0 {
         bool
         addParamByFunName(const std::string &param, const int32_t kind, const int32_t type, const std::string &name);
 
-        std::optional<CompilationError> statement(SymbleTable *symbleTable, int32_t returntype);
-
-        std::optional<CompilationError> compound_statement(SymbleTable *symbleTable, int32_t funtype);
-
         std::optional<CompilationError> parameter_declaration(const std::string &funname, SymbleTable *symbleTable);
 
         std::optional<CompilationError> function_definition();
@@ -116,5 +112,28 @@ namespace miniplc0 {
         bool addInstructionByFunName(int32_t count, Operation operation, int32_t x, int32_t y, const std::string &name);
 
         bool addFun(const std::string &name, const int32_t type, const int32_t name_index, const int32_t level);
+
+        int32_t functionType(const std::string &string);
+
+        std::optional<CompilationError> statement(SymbleTable *outest, SymbleTable *symbleTable, int32_t returntype);
+
+        std::optional<CompilationError> check_main();
+
+        std::optional<CompilationError> condition(SymbleTable *outest, SymbleTable *symbleTable, int32_t returntype, int32_t * index);
+
+        std::optional<CompilationError>
+        while_statement(SymbleTable *outest, SymbleTable *symbleTable, int32_t returntype);
+
+        bool changeXByCountAndFunName(int32_t count, int32_t x, const std::string &name);
+
+        bool addBreakByFunName(const int32_t count, const std::string &name);
+
+        std::vector<int32_t> getBreakIndexsByFunName(const std::string &name);
+
+        std::optional<CompilationError>
+        condition_statement(SymbleTable *outest, SymbleTable *symbleTable, int32_t returntype);
+
+        std::optional<CompilationError>
+        compound_statement(SymbleTable *outest, SymbleTable *symbleTable, int32_t funtype);
     };
 }
