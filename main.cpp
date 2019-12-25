@@ -123,6 +123,7 @@ int main(int argc, char** argv) {
         std::ifstream newinf;
         std::ofstream newoutf;
 
+
         newoutf.open("middle.txt", std::ios::binary | std::ios::out | std::ios::trunc);
         if (!newoutf) {
             fmt::print(stderr, "Fail to open {} for writing.\n", "middle.s");
