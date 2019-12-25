@@ -191,7 +191,7 @@ namespace miniplc0 {
                                                       std::make_optional<CompilationError>(pos,
                                                                                            ErrorCode::ErrInvalidInput));
                             }
-                            else if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X')) {
+                            else if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X') && std::strlen(chxx) > 2) {
                                 for (long long unsigned int i = 2; i < std::strlen(chxx); i++)
                                     if (!(chxx[i] >= '0' && chxx[i] <= '9') && !(chxx[i] >= 'a' && chxx[i] <= 'f') &&
                                         !(chxx[i] >= 'A' && chxx[i] <= 'F'))
@@ -246,7 +246,7 @@ namespace miniplc0 {
                                                   std::make_optional<CompilationError>(pos,
                                                                                        ErrorCode::ErrInvalidInput));
                         }
-                        else if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X')) {
+                        else if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X')&& std::strlen(chxx) > 2) {
                             for (long long unsigned int i = 2; i < std::strlen(chxx); i++)
                                 if (!(chxx[i] >= '0' && chxx[i] <= '9') && !(chxx[i] >= 'a' && chxx[i] <= 'f') &&
                                     !(chxx[i] >= 'A' && chxx[i] <= 'F'))
