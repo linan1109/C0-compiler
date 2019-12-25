@@ -58,7 +58,7 @@ namespace fmt {
                     name = "Trying to assign value to a constant.";
                     break;
                 case miniplc0::ErrDuplicateDeclaration:
-                    name = "The variable or constant has been declared.";
+                    name = "The identifier has been declared.";
                     break;
                 case miniplc0::ErrNotInitialized:
                     name = "The variable has not been initialized.";

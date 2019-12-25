@@ -58,8 +58,8 @@ namespace miniplc0 {
 		// 下一个 token 在栈的偏移
 		int32_t _nextTokenIndex;
 		int32_t __start_count = 0;
-
 		std::vector< std::pair<std::string, std::vector<int32_t > > > _while_break_count;
+
 
 
 
