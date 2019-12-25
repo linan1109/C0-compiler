@@ -272,6 +272,60 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles\cc0.dir\build.make CMakeFiles/cc0.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/file.obj: src/file.cpp.obj
+
+.PHONY : src/file.obj
+
+# target to build an object file
+src/file.cpp.obj:
+	$(MAKE) -f CMakeFiles\cc0_lib.dir\build.make CMakeFiles/cc0_lib.dir/src/file.cpp.obj
+.PHONY : src/file.cpp.obj
+
+src/file.i: src/file.cpp.i
+
+.PHONY : src/file.i
+
+# target to preprocess a source file
+src/file.cpp.i:
+	$(MAKE) -f CMakeFiles\cc0_lib.dir\build.make CMakeFiles/cc0_lib.dir/src/file.cpp.i
+.PHONY : src/file.cpp.i
+
+src/file.s: src/file.cpp.s
+
+.PHONY : src/file.s
+
+# target to generate assembly for a file
+src/file.cpp.s:
+	$(MAKE) -f CMakeFiles\cc0_lib.dir\build.make CMakeFiles/cc0_lib.dir/src/file.cpp.s
+.PHONY : src/file.cpp.s
+
+src/vm.obj: src/vm.cpp.obj
+
+.PHONY : src/vm.obj
+
+# target to build an object file
+src/vm.cpp.obj:
+	$(MAKE) -f CMakeFiles\cc0_lib.dir\build.make CMakeFiles/cc0_lib.dir/src/vm.cpp.obj
+.PHONY : src/vm.cpp.obj
+
+src/vm.i: src/vm.cpp.i
+
+.PHONY : src/vm.i
+
+# target to preprocess a source file
+src/vm.cpp.i:
+	$(MAKE) -f CMakeFiles\cc0_lib.dir\build.make CMakeFiles/cc0_lib.dir/src/vm.cpp.i
+.PHONY : src/vm.cpp.i
+
+src/vm.s: src/vm.cpp.s
+
+.PHONY : src/vm.s
+
+# target to generate assembly for a file
+src/vm.cpp.s:
+	$(MAKE) -f CMakeFiles\cc0_lib.dir\build.make CMakeFiles/cc0_lib.dir/src/vm.cpp.s
+.PHONY : src/vm.cpp.s
+
 symbletable/symbletable.obj: symbletable/symbletable.cpp.obj
 
 .PHONY : symbletable/symbletable.obj
@@ -430,6 +484,12 @@ help:
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s
+	@echo ... src/file.obj
+	@echo ... src/file.i
+	@echo ... src/file.s
+	@echo ... src/vm.obj
+	@echo ... src/vm.i
+	@echo ... src/vm.s
 	@echo ... symbletable/symbletable.obj
 	@echo ... symbletable/symbletable.i
 	@echo ... symbletable/symbletable.s

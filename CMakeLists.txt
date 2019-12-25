@@ -19,11 +19,30 @@ symbletable/symbletable.cpp
 analyser/analyser.h
 analyser/analyser.cpp
 instruction/instruction.h
+
+        src/c0_vm.h
+        src/print.hpp
+        src/tuple_visit.hpp
+        src/util.hpp
+
+        src/type.h
+        src/opcode.h
+        src/instruction.h
+        src/constant.h
+        src/function.h
+        src/exception.h
+
+        src/file.h
+        src/file.cpp
+
+        src/vm.h
+        src/vm.cpp
 )
 
 set(main_src
         main.cpp
         fmts.hpp
+
         )
 
 add_library(${PROJECT_LIB} ${lib_src})

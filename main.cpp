@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <src/c0_vm.h>
 
 std::vector<LNC0::Token> _tokenize(std::istream& input) {
 	LNC0::Tokenizer tkz(input);
@@ -74,7 +75,7 @@ int main(int argc, char** argv) {
 		.help("perform Text assembly file for the input file.");
 	program.add_argument("-o", "--output")
 		.required()
-		.default_value(std::string("-"))
+		.default_value(std::string("out"))
 		.help("specify the output file.");
 
 	try {
@@ -118,6 +119,25 @@ int main(int argc, char** argv) {
 	}
 	if (program["-c"] == true) {
 		//Tokenize(*input, *output);
+        c0_vm c0Vm;
+        std::ifstream newinf;
+        std::ofstream newoutf;
+
+        newoutf.open("middle.txt", std::ios::binary | std::ios::out | std::ios::trunc);
+        if (!newoutf) {
+            fmt::print(stderr, "Fail to open {} for writing.\n", "middle.s");
+            exit(2);
+        }
+        std::ostream* newoutput = &newoutf;
+        Analyse(*input, *newoutput);
+        newoutf.close();
+        newinf.open("middle.txt", std::ios::binary | std::ios::in);
+        if (!newinf) {
+            fmt::print(stderr, "Fail to open {} for reading.\n", "middle.s");
+            exit(2);
+        }
+        c0Vm.assemble_text(&newinf, &outf);
+        outf.close();
 	}
 	else if (program["-s"] == true) {
 		Analyse(*input, *output);
