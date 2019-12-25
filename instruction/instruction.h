@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <utility>
 
-namespace miniplc0 {
+namespace LNC0 {
 
 	enum Operation {
 	    loada,

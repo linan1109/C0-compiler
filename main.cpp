@@ -8,8 +8,8 @@
 #include <iostream>
 #include <fstream>
 
-std::vector<miniplc0::Token> _tokenize(std::istream& input) {
-	miniplc0::Tokenizer tkz(input);
+std::vector<LNC0::Token> _tokenize(std::istream& input) {
+	LNC0::Tokenizer tkz(input);
 	auto p = tkz.AllTokens();
 	if (p.second.has_value()) {
 		fmt::print(stderr, "Tokenization error: {}\n", p.second.value());
@@ -27,7 +27,7 @@ void Tokenize(std::istream& input, std::ostream& output) {
 
 void Analyse(std::istream& input, std::ostream& output){
 	auto tks = _tokenize(input);
-	miniplc0::Analyser analyser(tks);
+	LNC0::Analyser analyser(tks);
 	auto p = analyser.Analyse();
 	if (p.second.has_value()) {
 		fmt::print(stderr, "Syntactic analysis error: {}\n", p.second.value());
@@ -52,7 +52,7 @@ void Analyse(std::istream& input, std::ostream& output){
         output <<co++<<" "<<s.getNameIndex()<<" "<<s.getParams().size()<<" "<<s.getLevel()<<"\n";
     }
 
-    std::vector<std::vector<miniplc0::Instruction> >  y = p.first.second;
+    std::vector<std::vector<LNC0::Instruction> >  y = p.first.second;
 	for(auto &x : y)
         for (auto& it : x)
             output << fmt::format("{}\n", it);
@@ -61,17 +61,17 @@ void Analyse(std::istream& input, std::ostream& output){
 }
 
 int main(int argc, char** argv) {
-	argparse::ArgumentParser program("miniplc0");
+	argparse::ArgumentParser program("LNC0");
 	program.add_argument("input")
 		.help("speicify the file to be compiled.");
-	program.add_argument("-t")
+	program.add_argument("-c")
 		.default_value(false)
 		.implicit_value(true)
-		.help("perform tokenization for the input file.");
-	program.add_argument("-l")
+		.help("perform Binary target file for the input file.");
+	program.add_argument("-s")
 		.default_value(false)
 		.implicit_value(true)
-		.help("perform syntactic analysis for the input file.");
+		.help("perform Text assembly file for the input file.");
 	program.add_argument("-o", "--output")
 		.required()
 		.default_value(std::string("-"))
@@ -112,14 +112,14 @@ int main(int argc, char** argv) {
 	}
 	else
 		output = &std::cout;
-	if (program["-t"] == true && program["-l"] == true) {
+	if (program["-c"] == true && program["-s"] == true) {
 		fmt::print(stderr, "You can only perform tokenization or syntactic analysis at one time.");
 		exit(2);
 	}
-	if (program["-t"] == true) {
-		Tokenize(*input, *output);
+	if (program["-c"] == true) {
+		//Tokenize(*input, *output);
 	}
-	else if (program["-l"] == true) {
+	else if (program["-s"] == true) {
 		Analyse(*input, *output);
 	}
 	else {

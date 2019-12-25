@@ -4,7 +4,7 @@
 #include <sstream>
 #include <cstring>
 
-namespace miniplc0 {
+namespace LNC0 {
 
     std::pair<std::optional<Token>, std::optional<CompilationError>> Tokenizer::NextToken() {
         if (!_initialized)
@@ -77,13 +77,13 @@ namespace miniplc0 {
 
                         // 使用了自己封装的判断字符类型的函数，定义于 tokenizer/utils.hpp
                         // see https://en.cppreference.com/w/cpp/string/byte/isblank
-                        if (miniplc0::isspace(ch)) // 读到的字符是空白字符（空格、换行、制表符等）
+                        if (LNC0::isspace(ch)) // 读到的字符是空白字符（空格、换行、制表符等）
                             current_state = DFAState::INITIAL_STATE; // 保留当前状态为初始状态，此处直接break也是可以的
-                        else if (!miniplc0::isprint(ch)) // control codes and backspace
+                        else if (!LNC0::isprint(ch)) // control codes and backspace
                             invalid = true;
-                        else if (miniplc0::isdigit(ch)) // 读到的字符是数字
+                        else if (LNC0::isdigit(ch)) // 读到的字符是数字
                             current_state = DFAState::UNSIGNED_INTEGER_STATE; // 切换到无符号整数的状态
-                        else if (miniplc0::isalpha(ch)) // 读到的字符是英文字母
+                        else if (LNC0::isalpha(ch)) // 读到的字符是英文字母
                             current_state = DFAState::IDENTIFIER_STATE; // 切换到标识符的状态
                         else {
                             switch (ch) {
@@ -230,7 +230,7 @@ namespace miniplc0 {
                         //     解析成功则返回无符号整数类型的token，否则返回编译错误
                         auto ch = current_char.value();
                         // 如果读到的字符是数字，则存储读到的字符
-                        while (current_char.has_value() && (miniplc0::isdigit(ch) || miniplc0::isalpha(ch))) {
+                        while (current_char.has_value() && (LNC0::isdigit(ch) || LNC0::isalpha(ch))) {
                             ss << ch;
                             current_char = nextChar();
                             ch = current_char.value();
@@ -301,7 +301,7 @@ namespace miniplc0 {
                         }
                         // 如果读到的是字符或字母，则存储读到的字符
                         auto ch = current_char.value();
-                        if (miniplc0::isdigit(ch) || miniplc0::isalpha(ch))
+                        if (LNC0::isdigit(ch) || LNC0::isalpha(ch))
                             ss << ch;
                             // 如果读到的字符不是上述情况之一，则回退读到的字符，并解析已经读到的字符串
                         else {
@@ -542,7 +542,7 @@ namespace miniplc0 {
             switch (t.GetType()) {
                 case IDENTIFIER: {
                     auto val = t.GetValueString();
-                    if (miniplc0::isdigit(val[0]))
+                    if (LNC0::isdigit(val[0]))
                         return std::make_optional<CompilationError>(t.GetStartPos().first, t.GetStartPos().second,
                                                                     ErrorCode::ErrInvalidIdentifier);
                     break;

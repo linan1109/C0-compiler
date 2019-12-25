@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <instruction/instruction.h>
 
-namespace miniplc0 {
+namespace LNC0 {
     class one_symbol final{
         std::string _name;            //标识符名称
         int32_t _kind;                 /*种类

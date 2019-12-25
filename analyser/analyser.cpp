@@ -5,7 +5,7 @@
 #include <objbase.h>
 
 
-namespace miniplc0 {
+namespace LNC0 {
 
     std::pair<std::pair<std::vector<Instruction>, std::vector<std::vector<Instruction>> >, std::optional<CompilationError>> Analyser::Analyse() {
         auto err = C0_program();
@@ -100,7 +100,8 @@ namespace miniplc0 {
                     }
                 }else
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoType_specifier);
-            }
+            }else
+                return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoType_specifier);
         }
         auto err = check_main();
         if(err.has_value())

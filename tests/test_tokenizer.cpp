@@ -22,13 +22,13 @@ TEST_CASE("Test hello world.") {
 //		"end\n";
 //	std::stringstream ss;
 //	ss.str(input);
-//	miniplc0::Tokenizer tkz(ss);
-//	std::vector<miniplc0::Token> output = {};
+//	LNC0::Tokenizer tkz(ss);
+//	std::vector<LNC0::Token> output = {};
 //	auto result = tkz.AllTokens();
 //	//shan
 //	std::cout <<"-----------------starting------------------"<<std::endl;
 //	std::cout << "count\t" << result.first.size()<<std::endl;
-//	for(miniplc0::Token i : result.first){
+//	for(LNC0::Token i : result.first){
 //	    std::cout << i.GetType() <<"\t" << i.GetValueString() <<std::endl;
 //
 ////        std::cout << i.GetType() <<std::endl;

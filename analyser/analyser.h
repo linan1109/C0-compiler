@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <cstddef> // for std::size_t
 
-namespace miniplc0 {
+namespace LNC0 {
 
 	class Analyser final {
     public:

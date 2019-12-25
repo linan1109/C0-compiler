@@ -1,7 +1,7 @@
 #include "symbletable.h"
 
 
-namespace miniplc0 {
+namespace LNC0 {
 
     bool SymbleTable::addSymble(const std::string &s, int32_t kind, int32_t type, int32_t value, int32_t size){
         if(isDeclared(s))return false;

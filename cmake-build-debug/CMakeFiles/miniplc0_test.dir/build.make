@@ -111,7 +111,7 @@ miniplc0_test.exe: CMakeFiles/miniplc0_test.dir/tests/test_main.cpp.obj
 miniplc0_test.exe: CMakeFiles/miniplc0_test.dir/tests/test_tokenizer.cpp.obj
 miniplc0_test.exe: CMakeFiles/miniplc0_test.dir/tests/test_analyser.cpp.obj
 miniplc0_test.exe: CMakeFiles/miniplc0_test.dir/build.make
-miniplc0_test.exe: libminiplc0_lib.a
+miniplc0_test.exe: libcc0_lib.a
 miniplc0_test.exe: 3rd_party/fmt/libfmtd.a
 miniplc0_test.exe: CMakeFiles/miniplc0_test.dir/linklibs.rsp
 miniplc0_test.exe: CMakeFiles/miniplc0_test.dir/objects1.rsp
