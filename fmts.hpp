@@ -108,7 +108,9 @@ namespace fmt {
                 case miniplc0::ErrBreakNoneLoop:
                     name = "There is no loop to break.";
                     break;
-
+                case miniplc0::ErrContinueNoneLoop:
+                    name = "There is no loop to continue.";
+                    break;
 
             }
             return format_to(ctx.out(), name);
@@ -357,6 +359,9 @@ namespace fmt {
                 case miniplc0::jge:
                     name = "jge";
                     break;
+                case miniplc0::nop:
+                    name = "nop";
+                    break;
             }
             return format_to(ctx.out(), name);
         }
@@ -386,6 +391,7 @@ namespace fmt {
                 case miniplc0::sprint:
                 case miniplc0::ret:
                 case miniplc0::iret:
+                case miniplc0::nop:
                     return format_to(ctx.out(), "{} {}", p.GetCount()-1, p.GetOperation());
                 case miniplc0::ipush:
                 case miniplc0::bipush:

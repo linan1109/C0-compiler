@@ -34,7 +34,7 @@ namespace miniplc0 {
     std::optional<CompilationError> Analyser::C0_program() {
         
         addInstructionByFunName(Operation::_start, 0, 0, "");
-
+        addInstructionByFunName(Operation::nop, 0, 0, "");
         while(true){
             auto ed = nextToken();
             if(!ed.has_value()) break;
@@ -435,6 +435,17 @@ namespace miniplc0 {
             int32_t count = getCountByFunName(funname);
             addInstructionByFunName(Operation::jmp, 0, 0, funname);
             addWhileBreak(whilename,count);
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "continue"){
+            ed = nextToken();
+            if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON)
+                return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+
+            if(whilename == "")
+                return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrContinueNoneLoop);
+
+            int32_t count = getCountByFunName(funname);
+            addInstructionByFunName(Operation::jmp, 0, 0, funname);
+            addWhileContinue(whilename,count);
         }
 
 
@@ -743,7 +754,6 @@ namespace miniplc0 {
     }
   //<while_statement> ::=
     //    'while' '(' <condition> ')' <statement>
-    //todo:
   std::optional<CompilationError> Analyser::while_statement(const std::string &funname, SymbleTable *symbleTable, int32_t returntype) {
       auto ed = nextToken();
       if(!ed.has_value() || ed.value().GetType() != TokenType::RESERVED_WORD || ed.value().GetValueString() != "while") {
@@ -780,8 +790,15 @@ namespace miniplc0 {
       for(auto v : vec){
           changeXByCountAndFunName(v, getCountByFunName(funname)-1, funname);
       }
+
+      vec = getWhileContinuesByName(whilename);
+      for(auto v : vec){
+          changeXByCountAndFunName(v, oldcount, funname);
+      }
         return {};
     }
+
+
 
 /*********************************assignment_expression******************************************/
     //<赋值_表达式> ::=  <标识符><赋值_操作符><表达式>
@@ -1052,7 +1069,8 @@ namespace miniplc0 {
                         else
                             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
                         break;
-                    }
+                    }else
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
                 }
 
                 break;
@@ -1152,6 +1170,7 @@ namespace miniplc0 {
     std::string Analyser::addWhile(){
         std::string string = newAUuid();
         _while_break_count.emplace_back(string, std::vector<int32_t >());
+        _while_countinue_count.emplace_back(string, std::vector<int32_t >());
         return string;
     }
 
@@ -1168,6 +1187,25 @@ namespace miniplc0 {
 
     std::vector<int32_t> Analyser::getWhileBreaksByName(const std::string& name){
         for(auto v : _while_break_count){
+            if(name == v.first){
+                return v.second;
+            }
+        }
+        return std::vector<int32_t>();
+    }
+    void Analyser::addWhileContinue(const std::string& name, const int32_t count){
+        int i = 0;
+        for(auto v : _while_countinue_count){
+            if(name == v.first){
+                _while_countinue_count[i].second.push_back(count);
+                return;
+            }
+            i++;
+        }
+    }
+
+    std::vector<int32_t> Analyser::getWhileContinuesByName(const std::string& name){
+        for(auto v : _while_countinue_count){
             if(name == v.first){
                 return v.second;
             }

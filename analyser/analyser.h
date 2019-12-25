@@ -59,8 +59,7 @@ namespace miniplc0 {
 		int32_t _nextTokenIndex;
 		int32_t __start_count = 0;
 		std::vector< std::pair<std::string, std::vector<int32_t > > > _while_break_count;
-
-
+        std::vector< std::pair<std::string, std::vector<int32_t > > > _while_countinue_count;
 
 
 
@@ -145,5 +144,9 @@ namespace miniplc0 {
         void addWhileBreak( const std::string& name, const int32_t count);
 
         std::vector<int32_t> getWhileBreaksByName(const std::string &name);
+
+        void addWhileContinue(const std::string &name, const int32_t count);
+
+        std::vector<int32_t> getWhileContinuesByName(const std::string &name);
     };
 }

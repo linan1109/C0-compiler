@@ -50,6 +50,7 @@ namespace miniplc0 {
         ErrVoidFun,
         ErrNeedMain,
         ErrBreakNoneLoop,
+        ErrContinueNoneLoop,
     };
 
 	class CompilationError final{

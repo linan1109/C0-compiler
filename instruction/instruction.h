@@ -35,6 +35,7 @@ namespace miniplc0 {
         jge,
         jg,
         jle,
+        nop,
     };
 
 	class Instruction final {
