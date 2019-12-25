@@ -489,7 +489,7 @@ namespace miniplc0 {
             ed = nextToken();
         }
 
-        while(ed.has_value() && ed.value().GetType() != BIG_RIGHT_BRACKET ) {
+        while(ed.has_value() && ed.value().GetType() != BIG_RIGHT_BRACKET ) {/*
             if (ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD &&
                 ed.value().GetValueString() == "return") {
                 //std::printf("now here \n");
@@ -498,13 +498,13 @@ namespace miniplc0 {
                     addInstructionByFunName(Operation::ret, 0, 0,funname);
                 }
                 if (returntype == 1) {
-                    auto err = expression(funname, true, symbleTable);
+                    auto err = expression(funname, true, newsymbleTable);
                     if (err.has_value())
                         return err;
                     addInstructionByFunName(Operation::iret, 0, 0,funname);
                 }
                 if (returntype == 2) {
-                    auto err = expression(funname, false, symbleTable);
+                    auto err = expression(funname, false, newsymbleTable);
                     if (err.has_value())
                         return err;
                     addInstructionByFunName(Operation::iret, 0, 0,funname);
@@ -513,13 +513,13 @@ namespace miniplc0 {
                 if (!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON)
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
             }
-                else {
+                else {*/
                     unreadToken();
                     auto err = statement(whilename, funname, newsymbleTable, funtype);
                     if (err.has_value())
                         return err;
                     ed = nextToken();
-                }
+                //}
 
         }
         if(!ed.has_value())
@@ -896,8 +896,10 @@ namespace miniplc0 {
 
         ed = nextToken();
         unreadToken();
+        bool hasCondition = false;
         if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON) {
             err = condition(funname,symbleTable,&fromcount4);
+            hasCondition = true;
             if(err.has_value())
                 return err;
         }
@@ -939,7 +941,7 @@ namespace miniplc0 {
         changeXByCountAndFunName(fromcount1, tocount1 -1, funname);
         changeXByCountAndFunName(fromcount2, tocount2 -1, funname);
         changeXByCountAndFunName(fromcount3, tocount3 -1, funname);
-        changeXByCountAndFunName(fromcount4, tocount4 -1, funname);
+        if(hasCondition) changeXByCountAndFunName(fromcount4, tocount4 -1, funname);
 
         std::vector<int32_t> vec = getWhileBreaksByName(whilename);
         for(auto v : vec){
@@ -1521,6 +1523,7 @@ namespace miniplc0 {
     }
 
     bool Analyser::changeXByCountAndFunName(int32_t count,int32_t x,const std::string& name){
+        //if(count == 0) return false;
         if(name =="")
             _instructions[count].setX(x);
         for(auto & _function : _functions){

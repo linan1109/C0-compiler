@@ -342,7 +342,7 @@ namespace miniplc0 {
                         if (current_char == '/') {
                             std::string str = "//";
                             current_char = nextChar();
-                            while (current_char.has_value() && current_char != '\n' )current_char = nextChar();
+                            while (current_char.has_value() && (current_char != '\n' && current_char != '\r'))current_char = nextChar();
                             return std::make_pair(
                                     std::make_optional<Token>(TokenType::SINGLE_LINE_COMMENT_SIGN, str, pos,
                                                               currentPos()),
