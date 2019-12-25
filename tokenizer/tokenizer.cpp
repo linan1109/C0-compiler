@@ -186,7 +186,12 @@ namespace miniplc0 {
                         if (!current_char.has_value()) {
                             char *chxx = new char[100];
                             ss >> chxx;
-                            if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X')) {
+                            if (chxx[0] == '0' && (chxx[1] >= '0' && chxx[1] <= '9')) {
+                                return std::make_pair(std::optional<Token>(),
+                                                      std::make_optional<CompilationError>(pos,
+                                                                                           ErrorCode::ErrInvalidInput));
+                            }
+                            else if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X')) {
                                 for (long long unsigned int i = 2; i < std::strlen(chxx); i++)
                                     if (!(chxx[i] >= '0' && chxx[i] <= '9') && !(chxx[i] >= 'a' && chxx[i] <= 'f') &&
                                         !(chxx[i] >= 'A' && chxx[i] <= 'F'))
@@ -236,7 +241,12 @@ namespace miniplc0 {
                         if (current_char.has_value())unreadLast();
                         char *chxx = new char[100];
                         ss >> chxx;
-                        if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X')) {
+                        if (chxx[0] == '0' && (chxx[1] >= '0' && chxx[1] <= '9')) {
+                            return std::make_pair(std::optional<Token>(),
+                                                  std::make_optional<CompilationError>(pos,
+                                                                                       ErrorCode::ErrInvalidInput));
+                        }
+                        else if (chxx[0] == '0' && (chxx[1] == 'x' || chxx[1] == 'X')) {
                             for (long long unsigned int i = 2; i < std::strlen(chxx); i++)
                                 if (!(chxx[i] >= '0' && chxx[i] <= '9') && !(chxx[i] >= 'a' && chxx[i] <= 'f') &&
                                     !(chxx[i] >= 'A' && chxx[i] <= 'F'))

@@ -358,6 +358,7 @@ namespace miniplc0 {
             if (err.has_value())
                 return err;
 
+
         }
         //赋值_表达式  assignment_expression 函数_call
         else if(ed.has_value() && ed.value().GetType() == TokenType::IDENTIFIER) {
@@ -446,7 +447,19 @@ namespace miniplc0 {
             int32_t count = getCountByFunName(funname);
             addInstructionByFunName(Operation::jmp, 0, 0, funname);
             addWhileContinue(whilename,count);
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "do") {
+            unreadToken();
+            auto err = do_while_statement(funname,  symbleTable, returntype);
+            if (err.has_value())
+                return err;
+        }else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "for") {
+            unreadToken();
+            auto err = for_statement(funname,  symbleTable, returntype);
+            if (err.has_value())
+                return err;
         }
+
+
 
 
         //todo:
@@ -461,7 +474,7 @@ namespace miniplc0 {
         auto ed = nextToken();
         if(!ed.has_value() || ed.value().GetType() != TokenType::BIG_LEFT_BRACKET)
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
-//todo:
+
 
         std::string uuid = newAUuid();
         SymbleTable *newsymbleTable = new SymbleTable(symbleTable,uuid);
@@ -770,7 +783,6 @@ namespace miniplc0 {
       auto err = condition(funname,symbleTable,&count);
       if(err.has_value())
           return err;
-      changeXByCountAndFunName(count, getCountByFunName(funname), funname);
 
       ed = nextToken();
       if(!ed.has_value() || ed.value().GetType() != TokenType::RIGHT_BRACKET) {
@@ -798,6 +810,278 @@ namespace miniplc0 {
         return {};
     }
 
+
+    //'do' <statement> 'while' '(' <condition> ')' ';'
+    std::optional<CompilationError> Analyser::do_while_statement(const std::string &funname, SymbleTable *symbleTable, int32_t returntype) {
+
+        auto ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RESERVED_WORD || ed.value().GetValueString() != "do") {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrEOF);
+        }
+
+        std::string whilename = addWhile();
+        int oldcount = getCountByFunName(funname)-1;
+
+        auto err = statement(whilename, funname, symbleTable, returntype);
+        if(err.has_value())
+            return err;
+
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RESERVED_WORD || ed.value().GetValueString() != "while") {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrEOF);
+        }
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::LEFT_BRACKET) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
+        }
+
+        int count;
+        err = condition(funname,symbleTable,&count);
+        if(err.has_value())
+            return err;
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RIGHT_BRACKET) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+        }
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+        }
+
+        addInstructionByFunName(Operation::jmp, oldcount, 0, funname);
+
+        changeXByCountAndFunName(count, getCountByFunName(funname)-1, funname);
+
+        std::vector<int32_t> vec = getWhileBreaksByName(whilename);
+        for(auto v : vec){
+            changeXByCountAndFunName(v, getCountByFunName(funname)-1, funname);
+        }
+
+        vec = getWhileContinuesByName(whilename);
+        for(auto v : vec){
+            changeXByCountAndFunName(v, oldcount, funname);
+        }
+        return {};
+    }
+
+    //todo:
+//'for' '('<for_init_statement> [<condition>]';' [<for_update_expression>]')' <statement>
+    std::optional<CompilationError> Analyser::for_statement(const std::string &funname, SymbleTable *symbleTable, int32_t returntype) {
+        auto ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RESERVED_WORD || ed.value().GetValueString() != "for") {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrEOF);
+        }
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::LEFT_BRACKET) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
+        }
+
+        std::string whilename = addWhile();
+
+        auto err = for_init_statement(funname,symbleTable);
+        if(err.has_value())
+            return err;
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+        }
+
+        int tocount2 = getCountByFunName(funname);
+        int fromcount4;
+
+        ed = nextToken();
+        unreadToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON) {
+            err = condition(funname,symbleTable,&fromcount4);
+            if(err.has_value())
+                return err;
+        }
+        int fromcount3 = getCountByFunName(funname);
+        addInstructionByFunName(Operation::jmp, 0, 0, funname);
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+        }
+
+        int tocount1 = getCountByFunName(funname);
+
+        ed = nextToken();
+        unreadToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RIGHT_BRACKET) {
+            err = for_update_expression(funname,symbleTable);
+            if(err.has_value())
+                return err;
+        }
+
+        int fromcount2 = getCountByFunName(funname);
+        addInstructionByFunName(Operation::jmp, 0, 0, funname);
+
+        ed = nextToken();
+        if(!ed.has_value() || ed.value().GetType() != TokenType::RIGHT_BRACKET) {
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+        }
+
+        int tocount3 = getCountByFunName(funname);
+        err = statement(whilename,funname,symbleTable,returntype);
+        if(err.has_value())
+            return err;
+        int fromcount1 = getCountByFunName(funname);
+        addInstructionByFunName(Operation::jmp, 0, 0, funname);
+
+
+        int tocount4 = getCountByFunName(funname);
+        changeXByCountAndFunName(fromcount1, tocount1 -1, funname);
+        changeXByCountAndFunName(fromcount2, tocount2 -1, funname);
+        changeXByCountAndFunName(fromcount3, tocount3 -1, funname);
+        changeXByCountAndFunName(fromcount4, tocount4 -1, funname);
+
+        std::vector<int32_t> vec = getWhileBreaksByName(whilename);
+        for(auto v : vec){
+            changeXByCountAndFunName(v, tocount4 -1, funname);
+        }
+        vec = getWhileContinuesByName(whilename);
+        for(auto v : vec){
+            changeXByCountAndFunName(v, tocount1 -1, funname);
+        }
+        return {};
+    }
+
+    std::optional<CompilationError> Analyser::for_init_statement(const std::string &funname, SymbleTable *symbleTable) {
+        auto err = assignment_expression(funname, symbleTable);
+        if(err.has_value())
+            return err;
+        auto ed = nextToken();
+        while(ed.has_value() && ed.value().GetType() == TokenType::COMMA_SIGN){
+            auto err = assignment_expression(funname, symbleTable);
+            if(err.has_value())
+                return err;
+            ed = nextToken();
+        }
+
+        unreadToken();
+        return {};
+    }
+    std::optional<CompilationError> Analyser::for_update_expression(const std::string &funname, SymbleTable *symbleTable) {
+
+        auto next = nextToken();
+        std::string str = next.value().GetValueString();
+        if(next.has_value() && next.value().GetType() == TokenType::IDENTIFIER){
+            next = nextToken();
+            if(next.has_value() && next.value().GetType() == TokenType::LEFT_BRACKET){//函数
+                if(functionIndex(str) >= 0){
+                    //<函数_call>
+                    unreadToken();
+                    unreadToken();
+                    int32_t  type = functionType(str);
+                    if(type == 0)
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrVoidFun);
+                    auto err = function_call(funname, symbleTable);
+                    if(err.has_value())
+                        return err;
+                }else
+                    return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
+            }else{//字符
+                unreadToken();
+                unreadToken();
+                int32_t kind = symbleTable->getKindByName(str);
+
+                if(kind == 1){
+                    if(symbleTable->getValueByName(str) == 0)
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
+
+                    std::pair<int32_t ,int32_t > pii = symbleTable->index_in_all(str);
+                    if(pii.first == -1)
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
+                    int32_t type = symbleTable->getTypeByName(str);
+                    if(type == 1) {
+                        addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
+                        addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                    }
+                    else if(type == 2 ){//char
+                        addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
+                        addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                    }
+                    else
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
+                }else
+                    return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
+
+
+                auto err = assignment_expression(funname, symbleTable);
+                if(err.has_value())
+                    return err;
+
+
+            }
+        }else return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
+
+
+        next = nextToken();
+        while(next.has_value() && next.value().GetType() == TokenType::COMMA_SIGN){
+            auto err = assignment_expression(funname, symbleTable);
+            if(err.has_value())
+                return err;
+
+
+
+            next = nextToken();
+            std::string str = next.value().GetValueString();
+            if(next.has_value() && next.value().GetType() == TokenType::IDENTIFIER){
+                next = nextToken();
+                if(next.has_value() && next.value().GetType() == TokenType::LEFT_BRACKET){//函数
+                    if(functionIndex(str) >= 0){
+                        //<函数_call>
+                        unreadToken();
+                        unreadToken();
+                        int32_t  type = functionType(str);
+                        if(type == 0)
+                            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrVoidFun);
+                        auto err = function_call(funname, symbleTable);
+                        if(err.has_value())
+                            return err;
+                    }else
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
+                }else{//字符
+                    unreadToken();
+                    int32_t kind = symbleTable->getKindByName(str);
+
+                    if(kind == 0 || kind == 1){
+                        if(symbleTable->getValueByName(str) == 0)
+                            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
+
+                        std::pair<int32_t ,int32_t > pii = symbleTable->index_in_all(str);
+                        if(pii.first == -1)
+                            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
+                        int32_t type = symbleTable->getTypeByName(str);
+                        if(type == 1) {
+                            addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
+                            addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                        }
+                        else if(type == 2 ){//char
+                            addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
+                            addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                        }
+                        else
+                            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
+                    }else
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
+                }
+            }
+
+
+
+            next = nextToken();
+        }
+
+        unreadToken();
+        return {};
+    }
 
 
 /*********************************assignment_expression******************************************/

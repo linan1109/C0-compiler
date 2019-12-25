@@ -148,5 +148,17 @@ namespace miniplc0 {
         void addWhileContinue(const std::string &name, const int32_t count);
 
         std::vector<int32_t> getWhileContinuesByName(const std::string &name);
+
+        std::optional<CompilationError>
+        do_while_statement(const std::string &funname, SymbleTable *symbleTable, int32_t returntype);
+
+        std::optional<CompilationError>
+        for_statement(const std::string &funname, SymbleTable *symbleTable, int32_t returntype);
+
+        std::optional<CompilationError>
+        for_init_statement(const std::string &funname, SymbleTable *symbleTable);
+
+        std::optional<CompilationError>
+        for_update_expression(const std::string &funname, SymbleTable *symbleTable);
     };
 }
