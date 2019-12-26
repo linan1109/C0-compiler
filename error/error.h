@@ -51,6 +51,7 @@ namespace LNC0 {
         ErrNeedMain,
         ErrBreakNoneLoop,
         ErrContinueNoneLoop,
+        ErrUnknowStatement
     };
 
 	class CompilationError final{

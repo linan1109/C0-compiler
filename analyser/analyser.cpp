@@ -347,7 +347,7 @@ namespace LNC0 {
 //	{<statement>}
 //<语句> ::=   <作用域_语句> |<条件_语句> |<loop_语句> |<jump_语句> |<print_语句> |<scan_语句> |<赋值_表达式>';' |<函数_call>';' |';'
 //<statement> ::=   <compound_statement> |<condition_statement> |<loop_statement> |<jump_statement> |<print_statement> |<scan_statement> |<assignment_expression>';' |<function_call>';' |';'
- //todo:
+
     std::optional<CompilationError> Analyser::statement(const std::string & whilename, const std::string & funname,  SymbleTable *symbleTable, int32_t returntype) {
         //compound_statement 作用域_语句
         auto ed = nextToken();
@@ -456,7 +456,8 @@ namespace LNC0 {
             auto err = for_statement(funname,  symbleTable, returntype);
             if (err.has_value())
                 return err;
-        }
+        }else
+            return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrUnknowStatement);
 
 
 

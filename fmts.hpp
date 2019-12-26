@@ -111,6 +111,9 @@ namespace fmt {
                 case LNC0::ErrContinueNoneLoop:
                     name = "There is no loop to continue.";
                     break;
+                case LNC0::ErrUnknowStatement:
+                    name = "There should be a statement.";
+                    break;
 
             }
             return format_to(ctx.out(), name);
