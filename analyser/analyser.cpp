@@ -3,7 +3,6 @@
 #include <climits>
 #include <sstream>
 
-
 namespace LNC0 {
 
     std::pair<std::pair<std::vector<Instruction>, std::vector<std::vector<Instruction>> >, std::optional<CompilationError>> Analyser::Analyse() {
