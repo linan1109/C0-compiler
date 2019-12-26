@@ -2,7 +2,6 @@
 
 #include <climits>
 #include <sstream>
-#include <objbase.h>
 
 
 namespace LNC0 {
@@ -1571,21 +1570,18 @@ namespace LNC0 {
     }
 
     std::string Analyser::newAUuid(){
-        static char buf[64] = {0};
-        GUID guid;
-        if (S_OK == ::CoCreateGuid(&guid))
+        std::string buf = "";
+        for(int i = 0; i < 24; i++)
         {
-            _snprintf(buf, sizeof(buf)
-                    , "{%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}"
-                    , (unsigned int)guid.Data1
-                    , guid.Data2
-                    , guid.Data3
-                    , guid.Data4[0], guid.Data4[1]
-                    , guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5]
-                    , guid.Data4[6], guid.Data4[7]
-            );
+            int s,x;
+            s=rand()%2;                     //随机使s为1或0，为1就是大写，为0就是小写
+            if(s==1)                        //如果s=1
+                x=rand()%('Z'-'A'+1)+'A';       //将x赋为大写字母的ascii码
+            else
+                x=rand()%('z'-'a'+1)+'a';
+            buf.push_back(x);
         }
-        return (const char*)buf;
+        return buf;
 
     }
 
