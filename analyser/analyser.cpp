@@ -31,8 +31,8 @@ namespace LNC0 {
     //    {<variable_declaration>}{<function_definition>}
     std::optional<CompilationError> Analyser::C0_program() {
         
-        addInstructionByFunName(Operation::_start, 0, 0, "");
-        addInstructionByFunName(Operation::nop, 0, 0, "");
+        addInstructionByFunName(&_symbleTable,Operation::_start, 0, 0, "");
+        addInstructionByFunName(&_symbleTable,Operation::nop, 0, 0, "");
         while(true){
             auto ed = nextToken();
             if(!ed.has_value()) break;
@@ -173,7 +173,7 @@ namespace LNC0 {
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDuplicateDeclaration);
         ed = nextToken();
         
-        addInstructionByFunName( Operation::ipush, 0, 0,funname);
+        addInstructionByFunName(symbleTable,  Operation::ipush, 0, 0,funname);
         //std::printf("ipush 0\n");
         int32_t type = isINT? 1:2;
         int32_t kind = isCONST? 0:1;
@@ -186,18 +186,18 @@ namespace LNC0 {
             if(!symbleTable->addSymble(name.GetValueString(),kind,type,1,-1))
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDuplicateDeclaration);
             int index = symbleTable->index_in_all(name.GetValueString()).first;
-            addInstructionByFunName( Operation::loada, 0, index, funname);
+            addInstructionByFunName(symbleTable,  Operation::loada, 0, index, funname);
             //std::printf("ipush 0\n");
             auto err = expression(funname, isINT,symbleTable);
             if (err.has_value())
                 return err;
             //存值
             if(isINT) {
-                addInstructionByFunName( Operation::istore, 0, 0,funname);
+                addInstructionByFunName(symbleTable,  Operation::istore, 0, 0,funname);
                 //std::printf("istore\n");
             }
             else {
-                addInstructionByFunName( Operation::istore, 0, 0,funname);
+                addInstructionByFunName(symbleTable,  Operation::istore, 0, 0,funname);
                 //std::printf("istore\n");
             }
         }else {
@@ -243,7 +243,7 @@ namespace LNC0 {
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDuplicateDeclaration);
             _symbleTable.addSymble(name, 2, type, 0, 0);
             int32_t index = functionIndex(name);
-            addInstructionByFunName(Operation::_F, index, 0, name);
+            addInstructionByFunName(&_symbleTable, Operation::_F, index, 0, name);
             //std::printf("function : %s\n",name.c_str());
         }
         else return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
@@ -301,7 +301,7 @@ namespace LNC0 {
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDuplicateDeclaration);
             symbleTable->addSymble(name,kind,type,1,-1);
         }else return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
-
+        symbleTable->now_index++;
         return {};
     }
 
@@ -335,7 +335,7 @@ namespace LNC0 {
         if(!ed.has_value())
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
         if(functionType(funname) == 0)
-            addInstructionByFunName( Operation::ret, 0, 0,funname);
+            addInstructionByFunName(symbleTable,  Operation::ret, 0, 0,funname);
 
         return {};
     }
@@ -395,19 +395,19 @@ namespace LNC0 {
         else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "return") {
             //std::printf("now here \n");
             if (returntype == 0) {
-                addInstructionByFunName( Operation::ret, 0, 0,funname);
+                addInstructionByFunName(symbleTable,  Operation::ret, 0, 0,funname);
             }
             if (returntype == 1) {
                 auto err = expression(funname, true, symbleTable);
                 if (err.has_value())
                     return err;
-                addInstructionByFunName( Operation::iret, 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::iret, 0, 0, funname);
             }
             if (returntype == 2) {
                 auto err = expression(funname, false, symbleTable);
                 if (err.has_value())
                     return err;
-                addInstructionByFunName( Operation::iret, 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::iret, 0, 0, funname);
             }
             ed = nextToken();
             if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON)
@@ -433,7 +433,7 @@ namespace LNC0 {
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrBreakNoneLoop);
 
             int32_t count = getCountByFunName(funname);
-            addInstructionByFunName(Operation::jmp, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::jmp, 0, 0, funname);
             addWhileBreak(whilename,count);
         }else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "continue"){
             ed = nextToken();
@@ -444,7 +444,7 @@ namespace LNC0 {
                 return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrContinueNoneLoop);
 
             int32_t count = getCountByFunName(funname);
-            addInstructionByFunName(Operation::jmp, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::jmp, 0, 0, funname);
             addWhileContinue(whilename,count);
         }else if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "do") {
             unreadToken();
@@ -495,19 +495,19 @@ namespace LNC0 {
                 //std::printf("now here \n");
                 int32_t returntype = functionType(funname);
                 if (returntype == 0) {
-                    addInstructionByFunName(Operation::ret, 0, 0,funname);
+                    addInstructionByFunName(symbleTable, Operation::ret, 0, 0,funname);
                 }
                 if (returntype == 1) {
                     auto err = expression(funname, true, newsymbleTable);
                     if (err.has_value())
                         return err;
-                    addInstructionByFunName(Operation::iret, 0, 0,funname);
+                    addInstructionByFunName(symbleTable, Operation::iret, 0, 0,funname);
                 }
                 if (returntype == 2) {
                     auto err = expression(funname, false, newsymbleTable);
                     if (err.has_value())
                         return err;
-                    addInstructionByFunName(Operation::iret, 0, 0,funname);
+                    addInstructionByFunName(symbleTable, Operation::iret, 0, 0,funname);
                 }
                 ed = nextToken();
                 if (!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON)
@@ -548,6 +548,8 @@ namespace LNC0 {
 
         ed = nextToken();
         while(ed.has_value() && ed.value().GetType() == TokenType::COMMA_SIGN){
+            addInstructionByFunName(symbleTable,  Operation::ipush,(int)' ', 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::cprint,0 , 0, funname);
             auto err = printable(funname, symbleTable);
             if(err.has_value())
                 return err;
@@ -563,6 +565,8 @@ namespace LNC0 {
         if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON) {
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
         }
+        addInstructionByFunName(symbleTable,  Operation::ipush,(int)'\n', 0, funname);
+        addInstructionByFunName(symbleTable,  Operation::cprint,0 , 0, funname);
         return {};
     }
     //<printable> ::=  <表达式> | <string_串>| <char-literal>
@@ -572,8 +576,8 @@ namespace LNC0 {
 
         if(ed.has_value() && ed.value().GetType() == TokenType::CHAR_SIGN){
             char ch = ed.value().GetValueString()[0];
-            addInstructionByFunName( Operation::ipush,(int)ch, 0, funname);
-            addInstructionByFunName( Operation::cprint,0 , 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::ipush,(int)ch, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::cprint,0 , 0, funname);
 
 
         }else if(ed.has_value() && ed.value().GetType() == TokenType::STRING_SIGN){
@@ -581,8 +585,8 @@ namespace LNC0 {
                 int32_t index = stringIndex(ed.value().GetValueString());
                 if(index < 0)
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrEOF);
-                addInstructionByFunName( Operation::loadc, index, 0, funname);
-                addInstructionByFunName( Operation::sprint, 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::loadc, index, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::sprint, 0, 0, funname);
 
         }else{
             bool isint;
@@ -591,9 +595,9 @@ namespace LNC0 {
             if(err.has_value())
                 return err;
             if(isint){
-                addInstructionByFunName( Operation::iprint, 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::iprint, 0, 0, funname);
             }else{
-                addInstructionByFunName( Operation::cprint, 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::cprint, 0, 0, funname);
             }
         }
         return {};
@@ -627,15 +631,15 @@ namespace LNC0 {
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
 
         std::pair<int32_t ,int32_t > pii = symbleTable->index_in_all(name);
-        addInstructionByFunName( Operation::loada, pii.second, pii.first, funname);
+        addInstructionByFunName(symbleTable,  Operation::loada, pii.second, pii.first, funname);
 
         int32_t type = symbleTable->getTypeByName(name);
         if(type == 1) {//int
-            addInstructionByFunName( Operation::iscan, 0, 0, funname);
-            addInstructionByFunName( Operation::istore, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::iscan, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::istore, 0, 0, funname);
         }else if (type == 2) {//char
-            addInstructionByFunName( Operation::cscan, 0, 0, funname);
-            addInstructionByFunName( Operation::istore, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::cscan, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::istore, 0, 0, funname);
         }else
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
 
@@ -684,7 +688,7 @@ namespace LNC0 {
         ed = nextToken();
         if(ed.has_value() && ed.value().GetType() == TokenType::RESERVED_WORD && ed.value().GetValueString() == "else") {
             int32_t newcount = getCountByFunName(funname);
-            addInstructionByFunName(Operation::jmp, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::jmp, 0, 0, funname);
             changeXByCountAndFunName(count, newcount, funname);
             err = statement(whilename, funname, symbleTable, returntype);
             if(err.has_value())
@@ -709,59 +713,59 @@ namespace LNC0 {
             if(err.has_value())
                 return err;
 
-            addInstructionByFunName( Operation::isub, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::isub, 0, 0, funname);
             *index = getCountByFunName(funname);
-            addInstructionByFunName(Operation::jne, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::jne, 0, 0, funname);
 
         }else if(ed.has_value() && ed.value().GetType() == TokenType::GREATER_SIGN) {
             err = expression(funname, true, symbleTable);
             if(err.has_value())
                 return err;
 
-            addInstructionByFunName( Operation::isub, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::isub, 0, 0, funname);
             *index = getCountByFunName(funname);
-            addInstructionByFunName(Operation::jle, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::jle, 0, 0, funname);
 
         }else if(ed.has_value() && ed.value().GetType() == TokenType::GREATER_EQUAL_SIGN) {
             err = expression(funname, true, symbleTable);
             if(err.has_value())
                 return err;
 
-            addInstructionByFunName( Operation::isub, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::isub, 0, 0, funname);
             *index = getCountByFunName(funname);
-            addInstructionByFunName(Operation::jl, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::jl, 0, 0, funname);
 
         }else if(ed.has_value() && ed.value().GetType() == TokenType::LESS_SIGN) {
             err = expression(funname, true, symbleTable);
             if(err.has_value())
                 return err;
 
-            addInstructionByFunName( Operation::isub, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::isub, 0, 0, funname);
             *index = getCountByFunName(funname);
-            addInstructionByFunName(Operation::jge, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::jge, 0, 0, funname);
 
         }else if(ed.has_value() && ed.value().GetType() == TokenType::LESS_EQUAL_SIGN) {
             err = expression(funname, true, symbleTable);
             if(err.has_value())
                 return err;
 
-            addInstructionByFunName( Operation::isub, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::isub, 0, 0, funname);
             *index = getCountByFunName(funname);
-            addInstructionByFunName(Operation::jg, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::jg, 0, 0, funname);
 
         }else if(ed.has_value() && ed.value().GetType() == TokenType::UNEQUAL_SIGN) {
             err = expression(funname, true, symbleTable);
             if(err.has_value())
                 return err;
 
-            addInstructionByFunName( Operation::isub, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::isub, 0, 0, funname);
             *index = getCountByFunName(funname);
-            addInstructionByFunName(Operation::je, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::je, 0, 0, funname);
 
         }else{
             unreadToken();
             *index = getCountByFunName(funname);
-            addInstructionByFunName(Operation::je, 0, 0, funname);
+            addInstructionByFunName(symbleTable, Operation::je, 0, 0, funname);
         }
     return {};
     }
@@ -794,7 +798,7 @@ namespace LNC0 {
       if(err.has_value())
           return err;
 
-      addInstructionByFunName(Operation::jmp, oldcount, 0, funname);
+      addInstructionByFunName(symbleTable, Operation::jmp, oldcount, 0, funname);
 
       changeXByCountAndFunName(count, getCountByFunName(funname)-1, funname);
 
@@ -851,7 +855,7 @@ namespace LNC0 {
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
         }
 
-        addInstructionByFunName(Operation::jmp, oldcount, 0, funname);
+        addInstructionByFunName(symbleTable, Operation::jmp, oldcount, 0, funname);
 
         changeXByCountAndFunName(count, getCountByFunName(funname)-1, funname);
 
@@ -904,7 +908,7 @@ namespace LNC0 {
                 return err;
         }
         int fromcount3 = getCountByFunName(funname);
-        addInstructionByFunName(Operation::jmp, 0, 0, funname);
+        addInstructionByFunName(symbleTable, Operation::jmp, 0, 0, funname);
 
         ed = nextToken();
         if(!ed.has_value() || ed.value().GetType() != TokenType::SEMICOLON) {
@@ -922,7 +926,7 @@ namespace LNC0 {
         }
 
         int fromcount2 = getCountByFunName(funname);
-        addInstructionByFunName(Operation::jmp, 0, 0, funname);
+        addInstructionByFunName(symbleTable, Operation::jmp, 0, 0, funname);
 
         ed = nextToken();
         if(!ed.has_value() || ed.value().GetType() != TokenType::RIGHT_BRACKET) {
@@ -934,7 +938,7 @@ namespace LNC0 {
         if(err.has_value())
             return err;
         int fromcount1 = getCountByFunName(funname);
-        addInstructionByFunName(Operation::jmp, 0, 0, funname);
+        addInstructionByFunName(symbleTable, Operation::jmp, 0, 0, funname);
 
 
         int tocount4 = getCountByFunName(funname);
@@ -1002,12 +1006,12 @@ namespace LNC0 {
                         return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
                     int32_t type = symbleTable->getTypeByName(str);
                     if(type == 1) {
-                        addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
-                        addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                        addInstructionByFunName(symbleTable,  Operation::loada, pii.second,pii.first, funname);//加载地址
+                        addInstructionByFunName(symbleTable,  Operation::iload, 0,0, funname);//得到数
                     }
                     else if(type == 2 ){//char
-                        addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
-                        addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                        addInstructionByFunName(symbleTable,  Operation::loada, pii.second,pii.first, funname);//加载地址
+                        addInstructionByFunName(symbleTable,  Operation::iload, 0,0, funname);//得到数
                     }
                     else
                         return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
@@ -1062,12 +1066,12 @@ namespace LNC0 {
                             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
                         int32_t type = symbleTable->getTypeByName(str);
                         if(type == 1) {
-                            addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
-                            addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                            addInstructionByFunName(symbleTable,  Operation::loada, pii.second,pii.first, funname);//加载地址
+                            addInstructionByFunName(symbleTable,  Operation::iload, 0,0, funname);//得到数
                         }
                         else if(type == 2 ){//char
-                            addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
-                            addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                            addInstructionByFunName(symbleTable,  Operation::loada, pii.second,pii.first, funname);//加载地址
+                            addInstructionByFunName(symbleTable,  Operation::iload, 0,0, funname);//得到数
                         }
                         else
                             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
@@ -1108,16 +1112,16 @@ namespace LNC0 {
 
         std::pair<int32_t ,int32_t > pii = symbleTable->index_in_all(name);
         //对栈操作
-        addInstructionByFunName( Operation::loada, pii.second, pii.first, funname);
+        addInstructionByFunName(symbleTable,  Operation::loada, pii.second, pii.first, funname);
 
         auto err = expression(funname, type == 1,symbleTable);
         if(err.has_value())
             return err;
 
         if(type == 1)
-            addInstructionByFunName( Operation::istore, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::istore, 0, 0, funname);
         else
-            addInstructionByFunName( Operation::istore, 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::istore, 0, 0, funname);
 
         return {};
     }
@@ -1156,12 +1160,15 @@ namespace LNC0 {
                 if(!ed.has_value() || ed.value().GetType() != TokenType::COMMA_SIGN)
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLessParams);
             }
+
+            symbleTable->now_index--;
         }
+
         ed = nextToken();
         if(!ed.has_value() || ed.value().GetType() !=TokenType::RIGHT_BRACKET)
             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 
-        addInstructionByFunName( Operation::call, index, 0, funname);
+        addInstructionByFunName(symbleTable,  Operation::call, index, 0, funname);
         return {};
     }
 
@@ -1178,7 +1185,7 @@ namespace LNC0 {
         if (err.has_value())
             return err;
         if(!isintbegin && isint)
-            addInstructionByFunName( Operation::i2c , 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::i2c , 0, 0, funname);
         return {};
     }
 //<加法_表达式> ::=   <乘法_表达式>{<加法_操作符><乘法_表达式>}
@@ -1206,9 +1213,9 @@ namespace LNC0 {
                 return err;
 
             if (type == TokenType::PLUS_SIGN)
-                addInstructionByFunName( Operation::iadd , 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::iadd , 0, 0, funname);
             else if (type == TokenType::MINUS_SIGN)
-                addInstructionByFunName( Operation::isub, 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::isub, 0, 0, funname);
         }
         return {};
     }
@@ -1237,9 +1244,9 @@ namespace LNC0 {
                 return err;
 
             if (type == TokenType::MULTIPLICATION_SIGN)
-                addInstructionByFunName( Operation::imul, 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::imul, 0, 0, funname);
             else if (type == TokenType::DIVISION_SIGN)
-                addInstructionByFunName( Operation::idiv, 0, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::idiv, 0, 0, funname);
         }
         return {};
     }
@@ -1252,27 +1259,33 @@ namespace LNC0 {
         if(next.has_value() && next.value().GetType() == LEFT_BRACKET){
             bool nowINT = *isINT;
             next = nextToken();
-            if(next.has_value() && next.value().GetType() == RESERVED_WORD && next.value().GetValueString()=="char"){
-                nowINT = false;
-            }else if(next.has_value() && next.value().GetType() == RESERVED_WORD && next.value().GetValueString()=="int"){
-                nowINT = true;
-            }else return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoType_specifier);
-            next = nextToken();
-            if(!next.has_value() || next.value().GetType() != RIGHT_BRACKET)
-                return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
-            next = nextToken();
-            while(next.has_value() && next.value().GetType() == LEFT_BRACKET) {
+            if(next.has_value() && next.value().GetType() == RESERVED_WORD && (next.value().GetValueString()=="char"
+            ||next.value().GetValueString()=="int")){
+                if(next.has_value() && next.value().GetType() == RESERVED_WORD && next.value().GetValueString()=="char"){
+                    nowINT = false;
+                }else if(next.has_value() && next.value().GetType() == RESERVED_WORD && next.value().GetValueString()=="int"){
+                    nowINT = true;
+                }
                 next = nextToken();
-                if (next.has_value() && next.value().GetType() == RESERVED_WORD &&
-                    next.value().GetValueString() == "char") {
-                } else if (next.has_value() && next.value().GetType() == RESERVED_WORD &&
-                           next.value().GetValueString() == "int") {
-                } else return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoType_specifier);
-                next = nextToken();
-                if (!next.has_value() || next.value().GetType() != RIGHT_BRACKET)
+                if(!next.has_value() || next.value().GetType() != RIGHT_BRACKET)
                     return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
                 next = nextToken();
+                while(next.has_value() && next.value().GetType() == LEFT_BRACKET) {
+                    next = nextToken();
+                    if (next.has_value() && next.value().GetType() == RESERVED_WORD &&
+                        next.value().GetValueString() == "char") {
+                    } else if (next.has_value() && next.value().GetType() == RESERVED_WORD &&
+                               next.value().GetValueString() == "int") {
+                    } else return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoType_specifier);
+                    next = nextToken();
+                    if (!next.has_value() || next.value().GetType() != RIGHT_BRACKET)
+                        return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+                    next = nextToken();
+                }
+            } else{
+                unreadToken();
             }
+
 
             unreadToken();
             auto err = primary_expression(funname, isINT,symbleTable);
@@ -1345,12 +1358,12 @@ namespace LNC0 {
                         int32_t type = symbleTable->getTypeByName(str);
                         if(type == 1) {
                             *isINT = true;
-                            addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
-                            addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                            addInstructionByFunName(symbleTable,  Operation::loada, pii.second,pii.first, funname);//加载地址
+                            addInstructionByFunName(symbleTable,  Operation::iload, 0,0, funname);//得到数
                         }
                         else if(type == 2 ){//char
-                            addInstructionByFunName( Operation::loada, pii.second,pii.first, funname);//加载地址
-                            addInstructionByFunName( Operation::iload, 0,0, funname);//得到数
+                            addInstructionByFunName(symbleTable,  Operation::loada, pii.second,pii.first, funname);//加载地址
+                            addInstructionByFunName(symbleTable,  Operation::iload, 0,0, funname);//得到数
                         }
                         else
                             return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidIdentifier);
@@ -1370,7 +1383,7 @@ namespace LNC0 {
                 myss << numstr;
                 int32_t num = 0;
                 myss >> num;
-                addInstructionByFunName( Operation::ipush, num, 0, funname);
+                addInstructionByFunName(symbleTable,  Operation::ipush, num, 0, funname);
                 break;
             }
                 //'('<表达式>')'
@@ -1391,7 +1404,7 @@ namespace LNC0 {
                 char c;
                 sscanf(string.c_str(),"%c",&c);
                 auto int32 = (int32_t)c;
-                addInstructionByFunName(Operation::bipush, int32, 0, funname);
+                addInstructionByFunName(symbleTable, Operation::bipush, int32, 0, funname);
                 break;
             }
 
@@ -1407,7 +1420,7 @@ namespace LNC0 {
 
         // 取负
         if(prefix == -1) {
-            addInstructionByFunName( Operation::ineg , 0, 0, funname);
+            addInstructionByFunName(symbleTable,  Operation::ineg , 0, 0, funname);
             *isINT = true;
         }
         return {};
@@ -1513,12 +1526,12 @@ namespace LNC0 {
         return std::vector<int32_t>();
     }
 
-    bool Analyser::addInstructionByFunName(Operation operation, int32_t x, int32_t y, const std::string& name){
+    bool Analyser::addInstructionByFunName(SymbleTable *symbleTable,Operation operation, int32_t x, int32_t y, const std::string& name){
         if(name =="")
             _instructions.emplace_back(__start_count++,operation, x, y);
         for(auto & _function : _functions){
             if(name == _function.getName()){
-                _function.addInstruction(operation,x,y);
+                _function.addInstruction(operation,x,y, symbleTable);
                 return true;
             }
         }

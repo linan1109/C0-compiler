@@ -54,12 +54,14 @@ namespace LNC0 {
             for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
                 if(s == symbleTable.List[i].getName())
                 {
-                    pii.first = i + this->start_index;
+                    pii.first = i + symbleTable.start_index;
+                    if(symbleTable.name == "") pii.second = 1;
+                    else pii.second = 0;
                     return pii;
                 }
             if(symbleTable.father == nullptr) break;
             symbleTable = *symbleTable.father;
-            pii.second++;
+
         }
         return pii;
     }
@@ -74,6 +76,13 @@ namespace LNC0 {
             case LNC0::iprint:
             case LNC0::cprint:
             case LNC0::sprint:
+            case LNC0::jmp:
+            case LNC0::je:
+            case LNC0::jne:
+            case LNC0::jle:
+            case LNC0::jl:
+            case LNC0::jg:
+            case LNC0::jge:
                 now_index--;
                 break;
             case LNC0::ineg:
@@ -82,14 +91,7 @@ namespace LNC0 {
             case LNC0::nop:
             case LNC0::ret:
             case LNC0::iret:
-            case LNC0::jmp:
             case LNC0::call:
-            case LNC0::je:
-            case LNC0::jne:
-            case LNC0::jle:
-            case LNC0::jl:
-            case LNC0::jg:
-            case LNC0::jge:
             case LNC0::_F:
             case LNC0::_start:
                 break;
@@ -324,7 +326,8 @@ namespace LNC0 {
         _params.push_back(pii);
         return true;
     }
-    void function::addInstruction(Operation operation, int32_t x, int32_t y){
+    void function::addInstruction(Operation operation, int32_t x, int32_t y,SymbleTable * symbleTable){
+        symbleTable->changeStartIndex(operation);
         _instructions.emplace_back(_count++,operation,x,y);
     }
 

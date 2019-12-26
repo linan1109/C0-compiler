@@ -69,8 +69,9 @@ namespace LNC0 {
         std::vector<one_symbol> List; //符号表
         SymbleTable *father;
         int32_t start_index;
-        int32_t now_index;
+
     public:
+        int32_t now_index;
         SymbleTable *getFather() const;
 
         void setFather(SymbleTable *father);
@@ -94,7 +95,7 @@ namespace LNC0 {
             name = _name;
             if(father->name == "") start_index = 0;
             else
-                start_index = _father->now_index +1;
+                start_index = _father->now_index;
             now_index = start_index;
         }
 
@@ -187,7 +188,7 @@ namespace LNC0 {
         bool setInstructionX(int32_t Index, int32_t x);
         int32_t addCount();
 
-        void addInstruction(Operation operation, int32_t x, int32_t y);
+        void addInstruction(Operation operation, int32_t x, int32_t y, SymbleTable *symbleTable);
     };
 }
 
