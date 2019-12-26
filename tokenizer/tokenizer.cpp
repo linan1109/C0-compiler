@@ -343,6 +343,7 @@ namespace LNC0 {
                             std::string str = "//";
                             current_char = nextChar();
                             while (current_char.has_value() && (current_char != '\n' && current_char != '\r'))current_char = nextChar();
+                            unreadLast();
                             return std::make_pair(
                                     std::make_optional<Token>(TokenType::SINGLE_LINE_COMMENT_SIGN, str, pos,
                                                               currentPos()),
@@ -355,9 +356,8 @@ namespace LNC0 {
                                 if(current_char == '*'){
                                     current_char = nextChar();
                                     if(current_char == '/') break;
-                                    //unreadLast();
-                                }
-                                current_char = nextChar();
+                                }else
+                                    current_char = nextChar();
                                 if(!current_char.has_value())
                                     return std::make_pair(std::optional<Token>(),
                                                           std::make_optional<CompilationError>(pos, ErrorCode::ErrNeedRightMultipicationSign));

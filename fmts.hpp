@@ -88,7 +88,7 @@ namespace fmt {
                     name = "There should be a Type_specifier.";
                     break;
                 case LNC0::ErrNeedRightMultipicationSign:
-                    name = "There should be a \" *\\ \" .";
+                    name = "There should be a \" */ \" .";
                     break;
                 case LNC0::ErrNeedDoubleQuotes:
                     name = "There should be a \" .";

@@ -54,7 +54,7 @@ namespace LNC0 {
             for(long long unsigned int i = 0; i < symbleTable.List.size();i++)
                 if(s == symbleTable.List[i].getName())
                 {
-                    pii.first = i;
+                    pii.first = i + this->start_index;
                     return pii;
                 }
             if(symbleTable.father == nullptr) break;
@@ -63,6 +63,53 @@ namespace LNC0 {
         }
         return pii;
     }
+
+    void SymbleTable:: changeStartIndex(Operation o){
+        switch (o) {
+            case LNC0::iadd:
+            case LNC0::istore:
+            case LNC0::isub:
+            case LNC0::imul:
+            case LNC0::idiv:
+            case LNC0::iprint:
+            case LNC0::cprint:
+            case LNC0::sprint:
+                now_index--;
+                break;
+            case LNC0::ineg:
+            case LNC0::i2c:
+            case LNC0::iload:
+            case LNC0::nop:
+            case LNC0::ret:
+            case LNC0::iret:
+            case LNC0::jmp:
+            case LNC0::call:
+            case LNC0::je:
+            case LNC0::jne:
+            case LNC0::jle:
+            case LNC0::jl:
+            case LNC0::jg:
+            case LNC0::jge:
+            case LNC0::_F:
+            case LNC0::_start:
+                break;
+            case LNC0::loadc:
+            case LNC0::iscan:
+            case LNC0::cscan:
+            case LNC0::ipush:
+            case LNC0::bipush:
+            case LNC0::loada:
+                now_index++;
+                break;
+
+
+            default: break;
+
+
+
+        }
+    }
+
     int32_t SymbleTable:: getLevel(){
         SymbleTable symbleTable = *this;
         int i = 0;

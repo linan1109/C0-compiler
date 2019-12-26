@@ -141,6 +141,7 @@ int main(int argc, char** argv) {
         outf.close();
 	}
 	else if (program["-s"] == true) {
+        //Tokenize(*input, *output);
 		Analyse(*input, *output);
 	}
 	else {

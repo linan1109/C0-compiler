@@ -68,7 +68,8 @@ namespace LNC0 {
         using int32_t = std::int32_t;
         std::vector<one_symbol> List; //符号表
         SymbleTable *father;
-
+        int32_t start_index;
+        int32_t now_index;
     public:
         SymbleTable *getFather() const;
 
@@ -84,11 +85,17 @@ namespace LNC0 {
         SymbleTable(){
             name = "";
             father = nullptr;
+            start_index = 0;
+            now_index = start_index;
         }
 
         SymbleTable(SymbleTable *_father,std::string _name){
             father = _father;
             name = _name;
+            if(father->name == "") start_index = 0;
+            else
+                start_index = _father->now_index +1;
+            now_index = start_index;
         }
 
         bool operator==(const SymbleTable &rhs) const;
@@ -116,6 +123,10 @@ namespace LNC0 {
         int32_t getLevel();
 
         int32_t setValueByName(const std::string &s);
+
+        void changeStartIndex(std::string str);
+
+        void changeStartIndex(Operation o);
     };
 
     class function{
